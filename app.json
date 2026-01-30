@@ -15,16 +15,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.davar.bible"
+      "bundleIdentifier": "app.davar.bible",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1E3A5F"
       },
-      "package": "app.davar.bible",
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "package": "app.davar.bible"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -37,6 +38,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "33603a13-a8af-488c-9bf3-c67f1e06a6cb"
+      }
+    },
+    "owner": "nathansenn"
   }
 }
