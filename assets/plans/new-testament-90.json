@@ -1,0 +1,983 @@
+{
+  "id": "new-testament-90",
+  "name": "New Testament in 90 Days",
+  "description": "Read through the entire New Testament in 90 days, from Matthew to Revelation.",
+  "durationDays": 90,
+  "schedule": [
+    {
+      "day": 1,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 1,
+          "endChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 4,
+          "endChapter": 6
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 7,
+          "endChapter": 9
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 10,
+          "endChapter": 12
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 13,
+          "endChapter": 15
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 16,
+          "endChapter": 18
+        }
+      ]
+    },
+    {
+      "day": 7,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 19,
+          "endChapter": 21
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 22,
+          "endChapter": 24
+        }
+      ]
+    },
+    {
+      "day": 9,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 25,
+          "endChapter": 27
+        }
+      ]
+    },
+    {
+      "day": 10,
+      "passages": [
+        {
+          "bookId": "MAT",
+          "startChapter": 28
+        },
+        {
+          "bookId": "MRK",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 11,
+      "passages": [
+        {
+          "bookId": "MRK",
+          "startChapter": 3,
+          "endChapter": 5
+        }
+      ]
+    },
+    {
+      "day": 12,
+      "passages": [
+        {
+          "bookId": "MRK",
+          "startChapter": 6,
+          "endChapter": 8
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "passages": [
+        {
+          "bookId": "MRK",
+          "startChapter": 9,
+          "endChapter": 11
+        }
+      ]
+    },
+    {
+      "day": 14,
+      "passages": [
+        {
+          "bookId": "MRK",
+          "startChapter": 12,
+          "endChapter": 14
+        }
+      ]
+    },
+    {
+      "day": 15,
+      "passages": [
+        {
+          "bookId": "MRK",
+          "startChapter": 15,
+          "endChapter": 16
+        },
+        {
+          "bookId": "LUK",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 16,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 2,
+          "endChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 17,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 5,
+          "endChapter": 7
+        }
+      ]
+    },
+    {
+      "day": 18,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 8,
+          "endChapter": 10
+        }
+      ]
+    },
+    {
+      "day": 19,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 11,
+          "endChapter": 13
+        }
+      ]
+    },
+    {
+      "day": 20,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 14,
+          "endChapter": 16
+        }
+      ]
+    },
+    {
+      "day": 21,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 17,
+          "endChapter": 19
+        }
+      ]
+    },
+    {
+      "day": 22,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 20,
+          "endChapter": 22
+        }
+      ]
+    },
+    {
+      "day": 23,
+      "passages": [
+        {
+          "bookId": "LUK",
+          "startChapter": 23,
+          "endChapter": 24
+        },
+        {
+          "bookId": "JHN",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 24,
+      "passages": [
+        {
+          "bookId": "JHN",
+          "startChapter": 2,
+          "endChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 25,
+      "passages": [
+        {
+          "bookId": "JHN",
+          "startChapter": 5,
+          "endChapter": 7
+        }
+      ]
+    },
+    {
+      "day": 26,
+      "passages": [
+        {
+          "bookId": "JHN",
+          "startChapter": 8,
+          "endChapter": 10
+        }
+      ]
+    },
+    {
+      "day": 27,
+      "passages": [
+        {
+          "bookId": "JHN",
+          "startChapter": 11,
+          "endChapter": 13
+        }
+      ]
+    },
+    {
+      "day": 28,
+      "passages": [
+        {
+          "bookId": "JHN",
+          "startChapter": 14,
+          "endChapter": 16
+        }
+      ]
+    },
+    {
+      "day": 29,
+      "passages": [
+        {
+          "bookId": "JHN",
+          "startChapter": 17,
+          "endChapter": 19
+        }
+      ]
+    },
+    {
+      "day": 30,
+      "passages": [
+        {
+          "bookId": "JHN",
+          "startChapter": 20,
+          "endChapter": 21
+        },
+        {
+          "bookId": "ACT",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 31,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 2,
+          "endChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 32,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 5,
+          "endChapter": 7
+        }
+      ]
+    },
+    {
+      "day": 33,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 8,
+          "endChapter": 10
+        }
+      ]
+    },
+    {
+      "day": 34,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 11,
+          "endChapter": 13
+        }
+      ]
+    },
+    {
+      "day": 35,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 14,
+          "endChapter": 16
+        }
+      ]
+    },
+    {
+      "day": 36,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 17,
+          "endChapter": 19
+        }
+      ]
+    },
+    {
+      "day": 37,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 20,
+          "endChapter": 22
+        }
+      ]
+    },
+    {
+      "day": 38,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 23,
+          "endChapter": 25
+        }
+      ]
+    },
+    {
+      "day": 39,
+      "passages": [
+        {
+          "bookId": "ACT",
+          "startChapter": 26,
+          "endChapter": 28
+        }
+      ]
+    },
+    {
+      "day": 40,
+      "passages": [
+        {
+          "bookId": "ROM",
+          "startChapter": 1,
+          "endChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 41,
+      "passages": [
+        {
+          "bookId": "ROM",
+          "startChapter": 4,
+          "endChapter": 6
+        }
+      ]
+    },
+    {
+      "day": 42,
+      "passages": [
+        {
+          "bookId": "ROM",
+          "startChapter": 7,
+          "endChapter": 9
+        }
+      ]
+    },
+    {
+      "day": 43,
+      "passages": [
+        {
+          "bookId": "ROM",
+          "startChapter": 10,
+          "endChapter": 12
+        }
+      ]
+    },
+    {
+      "day": 44,
+      "passages": [
+        {
+          "bookId": "ROM",
+          "startChapter": 13,
+          "endChapter": 15
+        }
+      ]
+    },
+    {
+      "day": 45,
+      "passages": [
+        {
+          "bookId": "ROM",
+          "startChapter": 16
+        },
+        {
+          "bookId": "1CO",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 46,
+      "passages": [
+        {
+          "bookId": "1CO",
+          "startChapter": 3,
+          "endChapter": 5
+        }
+      ]
+    },
+    {
+      "day": 47,
+      "passages": [
+        {
+          "bookId": "1CO",
+          "startChapter": 6,
+          "endChapter": 8
+        }
+      ]
+    },
+    {
+      "day": 48,
+      "passages": [
+        {
+          "bookId": "1CO",
+          "startChapter": 9,
+          "endChapter": 11
+        }
+      ]
+    },
+    {
+      "day": 49,
+      "passages": [
+        {
+          "bookId": "1CO",
+          "startChapter": 12,
+          "endChapter": 14
+        }
+      ]
+    },
+    {
+      "day": 50,
+      "passages": [
+        {
+          "bookId": "1CO",
+          "startChapter": 15,
+          "endChapter": 16
+        },
+        {
+          "bookId": "2CO",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 51,
+      "passages": [
+        {
+          "bookId": "2CO",
+          "startChapter": 2,
+          "endChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 52,
+      "passages": [
+        {
+          "bookId": "2CO",
+          "startChapter": 5,
+          "endChapter": 7
+        }
+      ]
+    },
+    {
+      "day": 53,
+      "passages": [
+        {
+          "bookId": "2CO",
+          "startChapter": 8,
+          "endChapter": 10
+        }
+      ]
+    },
+    {
+      "day": 54,
+      "passages": [
+        {
+          "bookId": "2CO",
+          "startChapter": 11,
+          "endChapter": 13
+        }
+      ]
+    },
+    {
+      "day": 55,
+      "passages": [
+        {
+          "bookId": "GAL",
+          "startChapter": 1,
+          "endChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 56,
+      "passages": [
+        {
+          "bookId": "GAL",
+          "startChapter": 4,
+          "endChapter": 6
+        }
+      ]
+    },
+    {
+      "day": 57,
+      "passages": [
+        {
+          "bookId": "EPH",
+          "startChapter": 1,
+          "endChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 58,
+      "passages": [
+        {
+          "bookId": "EPH",
+          "startChapter": 4,
+          "endChapter": 6
+        }
+      ]
+    },
+    {
+      "day": 59,
+      "passages": [
+        {
+          "bookId": "PHP",
+          "startChapter": 1,
+          "endChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 60,
+      "passages": [
+        {
+          "bookId": "PHP",
+          "startChapter": 4
+        },
+        {
+          "bookId": "COL",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 61,
+      "passages": [
+        {
+          "bookId": "COL",
+          "startChapter": 3,
+          "endChapter": 4
+        },
+        {
+          "bookId": "1TH",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 62,
+      "passages": [
+        {
+          "bookId": "1TH",
+          "startChapter": 2,
+          "endChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 63,
+      "passages": [
+        {
+          "bookId": "1TH",
+          "startChapter": 5
+        },
+        {
+          "bookId": "2TH",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 64,
+      "passages": [
+        {
+          "bookId": "2TH",
+          "startChapter": 3
+        },
+        {
+          "bookId": "1TI",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 65,
+      "passages": [
+        {
+          "bookId": "1TI",
+          "startChapter": 3,
+          "endChapter": 5
+        }
+      ]
+    },
+    {
+      "day": 66,
+      "passages": [
+        {
+          "bookId": "1TI",
+          "startChapter": 6
+        },
+        {
+          "bookId": "2TI",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 67,
+      "passages": [
+        {
+          "bookId": "2TI",
+          "startChapter": 3,
+          "endChapter": 4
+        },
+        {
+          "bookId": "TIT",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 68,
+      "passages": [
+        {
+          "bookId": "TIT",
+          "startChapter": 2,
+          "endChapter": 3
+        },
+        {
+          "bookId": "PHM",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 69,
+      "passages": [
+        {
+          "bookId": "HEB",
+          "startChapter": 1,
+          "endChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 70,
+      "passages": [
+        {
+          "bookId": "HEB",
+          "startChapter": 4,
+          "endChapter": 6
+        }
+      ]
+    },
+    {
+      "day": 71,
+      "passages": [
+        {
+          "bookId": "HEB",
+          "startChapter": 7,
+          "endChapter": 9
+        }
+      ]
+    },
+    {
+      "day": 72,
+      "passages": [
+        {
+          "bookId": "HEB",
+          "startChapter": 10,
+          "endChapter": 12
+        }
+      ]
+    },
+    {
+      "day": 73,
+      "passages": [
+        {
+          "bookId": "HEB",
+          "startChapter": 13
+        },
+        {
+          "bookId": "JAS",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 74,
+      "passages": [
+        {
+          "bookId": "JAS",
+          "startChapter": 3,
+          "endChapter": 5
+        }
+      ]
+    },
+    {
+      "day": 75,
+      "passages": [
+        {
+          "bookId": "1PE",
+          "startChapter": 1,
+          "endChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 76,
+      "passages": [
+        {
+          "bookId": "1PE",
+          "startChapter": 4,
+          "endChapter": 5
+        },
+        {
+          "bookId": "2PE",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 77,
+      "passages": [
+        {
+          "bookId": "2PE",
+          "startChapter": 2,
+          "endChapter": 3
+        },
+        {
+          "bookId": "1JN",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 78,
+      "passages": [
+        {
+          "bookId": "1JN",
+          "startChapter": 2,
+          "endChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 79,
+      "passages": [
+        {
+          "bookId": "1JN",
+          "startChapter": 5
+        },
+        {
+          "bookId": "2JN",
+          "startChapter": 1
+        },
+        {
+          "bookId": "3JN",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 80,
+      "passages": [
+        {
+          "bookId": "JUD",
+          "startChapter": 1
+        },
+        {
+          "bookId": "REV",
+          "startChapter": 1,
+          "endChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 81,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 3,
+          "endChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 82,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 5,
+          "endChapter": 6
+        }
+      ]
+    },
+    {
+      "day": 83,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 7,
+          "endChapter": 8
+        }
+      ]
+    },
+    {
+      "day": 84,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 9,
+          "endChapter": 10
+        }
+      ]
+    },
+    {
+      "day": 85,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 11,
+          "endChapter": 12
+        }
+      ]
+    },
+    {
+      "day": 86,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 13,
+          "endChapter": 14
+        }
+      ]
+    },
+    {
+      "day": 87,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 15,
+          "endChapter": 16
+        }
+      ]
+    },
+    {
+      "day": 88,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 17,
+          "endChapter": 18
+        }
+      ]
+    },
+    {
+      "day": 89,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 19,
+          "endChapter": 20
+        }
+      ]
+    },
+    {
+      "day": 90,
+      "passages": [
+        {
+          "bookId": "REV",
+          "startChapter": 21,
+          "endChapter": 22
+        }
+      ]
+    }
+  ]
+}

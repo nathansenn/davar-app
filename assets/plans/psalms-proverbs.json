@@ -1,0 +1,883 @@
+{
+  "id": "psalms-proverbs",
+  "name": "Psalms & Proverbs Monthly",
+  "description": "A 30-day cycle through Psalms and Proverbs. Perfect for monthly repetition to build wisdom and worship into your daily rhythm.",
+  "durationDays": 30,
+  "isRepeating": true,
+  "schedule": [
+    {
+      "day": 1,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 1
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 31
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 61
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 91
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 121
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 1
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 2
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 32
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 62
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 92
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 122
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 2
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 3
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 33
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 63
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 93
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 123
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 3
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 4
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 34
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 64
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 94
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 124
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 4
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 5
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 35
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 65
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 95
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 125
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 5
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 6
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 36
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 66
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 96
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 126
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 6
+        }
+      ]
+    },
+    {
+      "day": 7,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 7
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 37
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 67
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 97
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 127
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 7
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 8
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 38
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 68
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 98
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 128
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 8
+        }
+      ]
+    },
+    {
+      "day": 9,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 9
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 39
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 69
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 99
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 129
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 9
+        }
+      ]
+    },
+    {
+      "day": 10,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 10
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 40
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 70
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 100
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 130
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 10
+        }
+      ]
+    },
+    {
+      "day": 11,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 11
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 41
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 71
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 101
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 131
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 11
+        }
+      ]
+    },
+    {
+      "day": 12,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 12
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 42
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 72
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 102
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 132
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 12
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 13
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 43
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 73
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 103
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 133
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 13
+        }
+      ]
+    },
+    {
+      "day": 14,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 14
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 44
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 74
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 104
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 134
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 14
+        }
+      ]
+    },
+    {
+      "day": 15,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 15
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 45
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 75
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 105
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 135
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 15
+        }
+      ]
+    },
+    {
+      "day": 16,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 16
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 46
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 76
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 106
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 136
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 16
+        }
+      ]
+    },
+    {
+      "day": 17,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 17
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 47
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 77
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 107
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 137
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 17
+        }
+      ]
+    },
+    {
+      "day": 18,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 18
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 48
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 78
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 108
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 138
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 18
+        }
+      ]
+    },
+    {
+      "day": 19,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 19
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 49
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 79
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 109
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 139
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 19
+        }
+      ]
+    },
+    {
+      "day": 20,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 20
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 50
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 80
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 110
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 140
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 20
+        }
+      ]
+    },
+    {
+      "day": 21,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 21
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 51
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 81
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 111
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 141
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 21
+        }
+      ]
+    },
+    {
+      "day": 22,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 22
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 52
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 82
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 112
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 142
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 22
+        }
+      ]
+    },
+    {
+      "day": 23,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 23
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 53
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 83
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 113
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 143
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 23
+        }
+      ]
+    },
+    {
+      "day": 24,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 24
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 54
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 84
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 114
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 144
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 24
+        }
+      ]
+    },
+    {
+      "day": 25,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 25
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 55
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 85
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 115
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 145
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 25
+        }
+      ]
+    },
+    {
+      "day": 26,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 26
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 56
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 86
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 116
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 146
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 26
+        }
+      ]
+    },
+    {
+      "day": 27,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 27
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 57
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 87
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 117
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 147
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 27
+        }
+      ]
+    },
+    {
+      "day": 28,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 28
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 58
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 88
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 118
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 148
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 28
+        }
+      ]
+    },
+    {
+      "day": 29,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 29
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 59
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 89
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 119
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 149
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 29
+        }
+      ]
+    },
+    {
+      "day": 30,
+      "passages": [
+        {
+          "bookId": "PSA",
+          "startChapter": 30
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 60
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 90
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 120
+        },
+        {
+          "bookId": "PSA",
+          "startChapter": 150
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 30
+        },
+        {
+          "bookId": "PRO",
+          "startChapter": 31
+        }
+      ]
+    }
+  ]
+}

@@ -177,6 +177,11 @@ async function initializeDefaults(db: SQLite.SQLiteDatabase): Promise<void> {
   await db.runAsync(
     'INSERT OR IGNORE INTO streaks (id) VALUES (1)'
   );
+
+  // Seed built-in reading plans
+  // Import dynamically to avoid circular dependency
+  const { seedBuiltInPlans } = await import('./planService');
+  await seedBuiltInPlans();
 }
 
 // ===========================================
@@ -203,9 +208,15 @@ export interface ReadingPlan {
   createdAt: string;
 }
 
+export interface PassageRef {
+  bookId: string;
+  startChapter: number;
+  endChapter?: number;
+}
+
 export interface DaySchedule {
   day: number;
-  passages: string[];
+  passages: PassageRef[];
 }
 
 export interface UserProgress {
