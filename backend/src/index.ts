@@ -30,6 +30,27 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Root route - API info
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Davar Bible App API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: 'GET /health',
+      auth: {
+        register: 'POST /auth/register',
+        login: 'POST /auth/login',
+      },
+      sync: {
+        push: 'POST /sync/push',
+        pull: 'POST /sync/pull',
+        full: 'POST /sync/full',
+      },
+    },
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
