@@ -1,0 +1,175 @@
+// Davar API - Prisma Schema
+// Self-hosted PostgreSQL on Railway
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// AUTHENTICATION
+// ==========================================
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String?  @map("display_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  sessions        Session[]
+  passwordResets  PasswordReset[]
+  highlights      Highlight[]
+  notes           Note[]
+  bookmarks       Bookmark[]
+  readingLogs     ReadingLog[]
+  planProgress    UserProgress[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("sessions")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@map("password_resets")
+}
+
+// ==========================================
+// USER DATA (Synced from mobile)
+// ==========================================
+
+model Highlight {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  verseRef  String   @map("verse_ref")
+  color     String   @default("yellow")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at") // Soft delete for sync
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, verseRef])
+  @@index([userId])
+  @@map("highlights")
+}
+
+model Note {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  verseRef  String   @map("verse_ref")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, verseRef])
+  @@map("notes")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  verseRef  String   @map("verse_ref")
+  label     String?
+  category  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, verseRef])
+  @@index([userId])
+  @@index([userId, category])
+  @@map("bookmarks")
+}
+
+model ReadingLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  date            DateTime @db.Date
+  passages        Json     // String array
+  durationMinutes Int?     @map("duration_minutes")
+  planId          String?  @map("plan_id") @db.Uuid
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan     ReadingPlan?  @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@map("reading_logs")
+}
+
+// ==========================================
+// READING PLANS
+// ==========================================
+
+model ReadingPlan {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  description  String?
+  durationDays Int      @map("duration_days")
+  schedule     Json     // Array of { day, passages[] }
+  isPublic     Boolean  @default(true) @map("is_public")
+  createdBy    String?  @map("created_by") @db.Uuid // null = system plan
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  readingLogs ReadingLog[]
+  progress    UserProgress[]
+
+  @@map("reading_plans")
+}
+
+model UserProgress {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  planId        String   @map("plan_id") @db.Uuid
+  startDate     DateTime @map("start_date") @db.Date
+  currentDay    Int      @default(1) @map("current_day")
+  completedDays Json     @default("[]") @map("completed_days") // Int array
+  status        String   @default("active") // active, paused, completed, abandoned
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan ReadingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, planId])
+  @@index([userId])
+  @@map("user_progress")
+}
