@@ -14,8 +14,10 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../lib/theme';
-import type { Translation, TranslationInfo } from '../../types';
+import type { Translation, TranslationDetails } from '../../types';
 import { TRANSLATIONS } from '../../types';
+
+type TranslationInfo = TranslationDetails;
 
 interface TranslationPickerProps {
   value: Translation;

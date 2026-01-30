@@ -74,8 +74,8 @@ export const Input = forwardRef<TextInput, InputProps>(
               {
                 color: theme.text,
               },
-              leftIcon && styles.inputWithLeftIcon,
-              rightIcon && styles.inputWithRightIcon,
+              leftIcon ? styles.inputWithLeftIcon : null,
+              rightIcon ? styles.inputWithRightIcon : null,
               inputStyle,
             ]}
             placeholderTextColor={theme.placeholder}
