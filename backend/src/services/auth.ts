@@ -301,7 +301,7 @@ function generateToken(userId: string, email: string): { token: string; expiresA
   const token = jwt.sign(
     { userId, email },
     config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
+    { expiresIn: '7d' }
   );
 
   return { token, expiresAt };
