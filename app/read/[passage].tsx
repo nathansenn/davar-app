@@ -14,13 +14,17 @@ import {
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingsStore, useReadingStore } from '../../src/stores';
+import { useUserDataStore } from '../../src/stores/userDataStore';
 import { bibleService } from '../../src/services/bibleService';
 import { ChapterView } from '../../src/components/reading/ChapterView';
 import { WordDetailModal } from '../../src/components/study/WordDetailModal';
 import { StrongsSearchModal } from '../../src/components/study/StrongsSearchModal';
+import { HighlightMenu } from '../../src/components/study/HighlightMenu';
+import { NoteEditor } from '../../src/components/study/NoteEditor';
 import { AudioControls } from '../../src/components/reading/AudioControls';
 import { parseReference, referenceToPath } from '../../src/utils/referenceParser';
 import type { TranslationCode, Verse, Chapter, Book } from '../../src/types/bible';
+import type { HighlightColor } from '../../src/types';
 
 // Map URL slugs to book IDs
 const SLUG_TO_BOOK_ID: Record<string, string> = {
@@ -147,6 +151,24 @@ export default function PassageScreen() {
   // Audio controls
   const [showAudioControls, setShowAudioControls] = useState(false);
   const [highlightedVerse, setHighlightedVerse] = useState<number>(0);
+  
+  // Highlight/Notes menu
+  const [highlightMenuVisible, setHighlightMenuVisible] = useState(false);
+  const [noteEditorVisible, setNoteEditorVisible] = useState(false);
+  const [selectedVerseForMenu, setSelectedVerseForMenu] = useState<Verse | null>(null);
+  
+  // User data store
+  const {
+    addHighlight,
+    removeHighlightByRef,
+    getHighlight,
+    addBookmark,
+    removeBookmarkByRef,
+    isBookmarked,
+    addNote,
+    removeNoteByRef,
+    getNote,
+  } = useUserDataStore();
   
   // Parse passage and load data
   useEffect(() => {
@@ -294,6 +316,66 @@ export default function PassageScreen() {
     setTranslation(translations[nextIndex]);
   }, [translation]);
   
+  // Verse long press handler - opens highlight menu
+  const handleVerseLongPress = useCallback((verse: Verse) => {
+    setSelectedVerseForMenu(verse);
+    setHighlightMenuVisible(true);
+  }, []);
+  
+  // Get current verse info for highlight menu
+  const selectedVerseNum = selectedVerseForMenu?.number || 0;
+  const selectedVerseRef = parsedPassage 
+    ? `${bookName} ${parsedPassage.chapter}:${selectedVerseNum}`
+    : '';
+  const currentHighlight = parsedPassage 
+    ? getHighlight(parsedPassage.bookId, parsedPassage.chapter, selectedVerseNum)
+    : undefined;
+  const currentBookmark = parsedPassage 
+    ? isBookmarked(parsedPassage.bookId, parsedPassage.chapter, selectedVerseNum)
+    : false;
+  const currentNote = parsedPassage 
+    ? getNote(parsedPassage.bookId, parsedPassage.chapter, selectedVerseNum)
+    : undefined;
+  
+  // Highlight color selection handler
+  const handleSelectHighlightColor = useCallback((color: HighlightColor) => {
+    if (!parsedPassage || !selectedVerseForMenu) return;
+    addHighlight(parsedPassage.bookId, parsedPassage.chapter, selectedVerseForMenu.number, color);
+  }, [parsedPassage, selectedVerseForMenu, addHighlight]);
+  
+  // Remove highlight handler
+  const handleRemoveHighlight = useCallback(() => {
+    if (!parsedPassage || !selectedVerseForMenu) return;
+    removeHighlightByRef(parsedPassage.bookId, parsedPassage.chapter, selectedVerseForMenu.number);
+  }, [parsedPassage, selectedVerseForMenu, removeHighlightByRef]);
+  
+  // Bookmark handlers
+  const handleAddBookmark = useCallback(() => {
+    if (!parsedPassage || !selectedVerseForMenu) return;
+    addBookmark(parsedPassage.bookId, parsedPassage.chapter, selectedVerseForMenu.number);
+  }, [parsedPassage, selectedVerseForMenu, addBookmark]);
+  
+  const handleRemoveBookmark = useCallback(() => {
+    if (!parsedPassage || !selectedVerseForMenu) return;
+    removeBookmarkByRef(parsedPassage.bookId, parsedPassage.chapter, selectedVerseForMenu.number);
+  }, [parsedPassage, selectedVerseForMenu, removeBookmarkByRef]);
+  
+  // Note handlers
+  const handleAddNote = useCallback(() => {
+    setHighlightMenuVisible(false);
+    setNoteEditorVisible(true);
+  }, []);
+  
+  const handleSaveNote = useCallback((content: string) => {
+    if (!parsedPassage || !selectedVerseForMenu) return;
+    addNote(parsedPassage.bookId, parsedPassage.chapter, selectedVerseForMenu.number, content);
+  }, [parsedPassage, selectedVerseForMenu, addNote]);
+  
+  const handleDeleteNote = useCallback(() => {
+    if (!parsedPassage || !selectedVerseForMenu) return;
+    removeNoteByRef(parsedPassage.bookId, parsedPassage.chapter, selectedVerseForMenu.number);
+  }, [parsedPassage, selectedVerseForMenu, removeNoteByRef]);
+  
   // Chapter data for ChapterView
   const chapterViewData = useMemo(() => {
     if (!chapter || !parsedPassage) return null;
@@ -421,6 +503,7 @@ export default function PassageScreen() {
           fontSize={fontSizeValue}
           displayMode={showInterlinear ? 'interlinear' : 'verse'}
           onWordPress={handleWordPress}
+          onVerseLongPress={handleVerseLongPress}
           onPreviousChapter={handlePreviousChapter}
           onNextChapter={handleNextChapter}
         />
@@ -505,6 +588,33 @@ export default function PassageScreen() {
             setStrongsSearchVisible(false);
             handleNavigateToReference(ref);
           }}
+        />
+        
+        {/* Highlight Menu */}
+        <HighlightMenu
+          visible={highlightMenuVisible}
+          onClose={() => setHighlightMenuVisible(false)}
+          onSelectColor={handleSelectHighlightColor}
+          onRemoveHighlight={handleRemoveHighlight}
+          onAddBookmark={handleAddBookmark}
+          onRemoveBookmark={handleRemoveBookmark}
+          onAddNote={handleAddNote}
+          currentColor={currentHighlight?.color}
+          isBookmarked={currentBookmark}
+          hasNote={!!currentNote}
+          verse={selectedVerseRef}
+        />
+        
+        {/* Note Editor */}
+        <NoteEditor
+          visible={noteEditorVisible}
+          onClose={() => setNoteEditorVisible(false)}
+          onSave={handleSaveNote}
+          onDelete={handleDeleteNote}
+          verse={selectedVerseRef}
+          verseText={selectedVerseForMenu?.text}
+          initialContent={currentNote?.content || ''}
+          isEditing={!!currentNote}
         />
       </View>
     </>
