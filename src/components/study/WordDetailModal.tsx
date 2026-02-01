@@ -49,6 +49,7 @@ interface WordDetailModalProps {
     bookId?: string;
     chapter?: number;
     verseNum?: number;
+    verseText?: string;  // The actual verse text
   };
   onSearchStrongs?: (strongsNumber: string) => void;
   onNavigateToReference?: (reference: string) => void;
@@ -197,8 +198,31 @@ export function WordDetailModal({
       case 'definition':
         return (
           <View style={styles.tabContent}>
+            {/* Verse Context Card - Shows the verse with word highlighted */}
+            {context?.verseText && (
+              <View style={[styles.verseCard, { backgroundColor: theme.surfaceSecondary }]}>
+                <Text style={[styles.verseCardLabel, { color: theme.textMuted }]}>
+                  📖 In Context
+                </Text>
+                <Text style={[styles.verseCardText, { color: theme.text }]}>
+                  {context.verseText.split(new RegExp(`(${word})`, 'gi')).map((part, i) =>
+                    part.toLowerCase() === word.toLowerCase() ? (
+                      <Text key={i} style={[styles.highlightedWord, { backgroundColor: theme.primary + '30', color: theme.primary }]}>
+                        {part}
+                      </Text>
+                    ) : (
+                      <Text key={i}>{part}</Text>
+                    )
+                  )}
+                </Text>
+              </View>
+            )}
+
             {/* Original Word Card */}
             <View style={[styles.wordCard, { backgroundColor: theme.surfaceSecondary }]}>
+              <Text style={[styles.wordCardLabel, { color: theme.textMuted }]}>
+                {language === 'hebrew' ? '🇮🇱 Hebrew' : '🇬🇷 Greek'} Original
+              </Text>
               <Text style={[styles.lemma, { color: theme.text }]}>
                 {strongs.lemma}
               </Text>
@@ -521,13 +545,27 @@ export function WordDetailModal({
             <View style={[styles.handle, { backgroundColor: theme.border }]} />
           </View>
 
-          {/* Header */}
+          {/* Header - Enhanced with verse context */}
           <View style={styles.header}>
-            <Text style={[styles.word, { color: theme.text }]}>"{word}"</Text>
+            <View style={styles.wordHeaderRow}>
+              <Text style={[styles.word, { color: theme.text }]}>"{word}"</Text>
+              {strongs && (
+                <View style={[styles.originalWordBadge, { backgroundColor: theme.primary + '15' }]}>
+                  <Text style={[styles.originalWordText, { color: theme.primary }]}>
+                    {strongs.lemma}
+                  </Text>
+                </View>
+              )}
+            </View>
             {context && (
-              <Text style={[styles.context, { color: theme.textMuted }]}>
-                {context.verse} ({context.translation})
-              </Text>
+              <View style={styles.verseContextContainer}>
+                <Text style={[styles.verseReference, { color: theme.primary }]}>
+                  {context.verse}
+                </Text>
+                <Text style={[styles.translationBadgeSmall, { color: theme.textMuted }]}>
+                  {context.translation}
+                </Text>
+              </View>
             )}
           </View>
 
@@ -733,13 +771,70 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 16,
   },
+  wordHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 8,
+  },
   word: {
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 4,
   },
-  context: {
-    fontSize: 14,
+  originalWordBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  originalWordText: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  verseContextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  verseReference: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  translationBadgeSmall: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  // Verse Context Card
+  verseCard: {
+    padding: 16,
+    borderRadius: 14,
+    marginBottom: 16,
+  },
+  verseCardLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 10,
+  },
+  verseCardText: {
+    fontSize: 16,
+    lineHeight: 26,
+    fontStyle: 'italic',
+  },
+  highlightedWord: {
+    fontWeight: '700',
+    fontStyle: 'normal',
+    paddingHorizontal: 4,
+    borderRadius: 4,
+  },
+  wordCardLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   loadingContainer: {
     alignItems: 'center',

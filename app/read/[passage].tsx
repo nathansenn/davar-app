@@ -10,11 +10,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingsStore, useReadingStore } from '../../src/stores';
 import { useUserDataStore } from '../../src/stores/userDataStore';
+import { useTheme } from '../../src/lib/theme';
 import { bibleService } from '../../src/services/bibleService';
 import { ChapterView } from '../../src/components/reading/ChapterView';
 import { WordDetailModal } from '../../src/components/study/WordDetailModal';
@@ -116,6 +118,7 @@ function parsePassageSlug(slug: string): ParsedPassage | null {
 export default function PassageScreen() {
   const { passage } = useLocalSearchParams<{ passage: string }>();
   const router = useRouter();
+  const { theme, isDark } = useTheme();
   
   // Settings
   const {
@@ -411,9 +414,11 @@ export default function PassageScreen() {
   // Loading state
   if (isLoading) {
     return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator size="large" color="#1E3A5F" />
-        <Text className="text-muted mt-4">Loading scripture...</Text>
+      <View style={[passageStyles.centerContainer, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+        <Text style={[passageStyles.loadingText, { color: theme.textMuted }]}>
+          Loading scripture...
+        </Text>
       </View>
     );
   }
@@ -427,19 +432,19 @@ export default function PassageScreen() {
             headerTitle: 'Error',
           }}
         />
-        <View className="flex-1 bg-background items-center justify-center px-6">
-          <Ionicons name="alert-circle" size={64} color="#EF4444" />
-          <Text className="text-red-500 text-lg font-semibold mt-4">
+        <View style={[passageStyles.centerContainer, { backgroundColor: theme.background, paddingHorizontal: 24 }]}>
+          <Ionicons name="alert-circle" size={64} color={theme.error} />
+          <Text style={[passageStyles.errorTitle, { color: theme.error }]}>
             {error || 'Chapter not found'}
           </Text>
-          <Text className="text-muted text-center mt-2">
+          <Text style={[passageStyles.errorSubtitle, { color: theme.textMuted }]}>
             Please try a different passage
           </Text>
           <TouchableOpacity
             onPress={() => router.back()}
-            className="mt-6 bg-primary px-6 py-3 rounded-xl"
+            style={[passageStyles.errorButton, { backgroundColor: theme.primary }]}
           >
-            <Text className="text-white font-semibold">Go Back</Text>
+            <Text style={passageStyles.errorButtonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
       </>
@@ -494,7 +499,7 @@ export default function PassageScreen() {
         }}
       />
       
-      <View className="flex-1 bg-background">
+      <View style={[passageStyles.mainContainer, { backgroundColor: theme.background }]}>
         {/* Chapter View */}
         <ChapterView
           chapter={chapterViewData}
@@ -509,32 +514,37 @@ export default function PassageScreen() {
         />
         
         {/* Bottom Bar */}
-        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 pb-8">
-          <View className="flex-row items-center justify-between">
+        <View 
+          style={[
+            passageStyles.bottomBar,
+            { backgroundColor: theme.surface, borderTopColor: theme.border }
+          ]}
+        >
+          <View style={passageStyles.bottomBarContent}>
             {/* Prev/Next Navigation */}
             <TouchableOpacity
               onPress={handlePreviousChapter}
-              className="flex-row items-center px-3 py-2"
+              style={passageStyles.navButton}
             >
-              <Ionicons name="chevron-back" size={20} color="#1E3A5F" />
-              <Text className="text-primary font-medium ml-1">Prev</Text>
+              <Ionicons name="chevron-back" size={20} color={theme.primary} />
+              <Text style={[passageStyles.navText, { color: theme.primary }]}>Prev</Text>
             </TouchableOpacity>
             
             {/* Complete Button */}
             {readingComplete ? (
-              <View className="flex-row items-center px-4 py-2">
-                <Ionicons name="checkmark-circle" size={24} color="#22C55E" />
-                <Text className="text-green-600 font-semibold ml-2">
+              <View style={passageStyles.completeContainer}>
+                <Ionicons name="checkmark-circle" size={24} color={theme.success} />
+                <Text style={[passageStyles.completeText, { color: theme.success }]}>
                   Complete! 🎉
                 </Text>
               </View>
             ) : (
               <TouchableOpacity
                 onPress={handleMarkComplete}
-                className="bg-primary/10 rounded-xl px-4 py-2 flex-row items-center"
+                style={[passageStyles.markCompleteBtn, { backgroundColor: theme.primary + '15' }]}
               >
-                <Ionicons name="checkmark-circle-outline" size={20} color="#1E3A5F" />
-                <Text className="text-primary font-semibold ml-2">
+                <Ionicons name="checkmark-circle-outline" size={20} color={theme.primary} />
+                <Text style={[passageStyles.markCompleteText, { color: theme.primary }]}>
                   Mark Complete
                 </Text>
               </TouchableOpacity>
@@ -543,10 +553,10 @@ export default function PassageScreen() {
             {/* Next Navigation */}
             <TouchableOpacity
               onPress={handleNextChapter}
-              className="flex-row items-center px-3 py-2"
+              style={passageStyles.navButton}
             >
-              <Text className="text-primary font-medium mr-1">Next</Text>
-              <Ionicons name="chevron-forward" size={20} color="#1E3A5F" />
+              <Text style={[passageStyles.navText, { color: theme.primary }]}>Next</Text>
+              <Ionicons name="chevron-forward" size={20} color={theme.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -574,6 +584,7 @@ export default function PassageScreen() {
             bookId: parsedPassage?.bookId,
             chapter: parsedPassage?.chapter,
             verseNum: selectedVerse.number,
+            verseText: selectedVerse.text,  // Pass the verse text!
           } : undefined}
           onNavigateToReference={handleNavigateToReference}
           onSearchStrongs={handleSearchStrongs}
@@ -620,3 +631,84 @@ export default function PassageScreen() {
     </>
   );
 }
+
+const passageStyles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 16,
+  },
+  errorSubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  errorButton: {
+    marginTop: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  errorButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
+  bottomBarContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  navText: {
+    fontWeight: '500',
+    marginHorizontal: 4,
+  },
+  completeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  completeText: {
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  markCompleteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  markCompleteText: {
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+});

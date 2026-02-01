@@ -172,10 +172,10 @@ export const lightTheme: ThemeColors = {
   surface: '#FFFFFF',
   surfaceSecondary: '#F4F4F2',
   
-  // Text
-  text: '#2D2D2D',
-  textSecondary: '#525252',
-  textMuted: '#737373',
+  // Text - HIGH CONTRAST for readability
+  text: '#1A1A1A',           // Darker for better contrast (was #2D2D2D)
+  textSecondary: '#3D3D3D',  // Good secondary contrast (was #525252)
+  textMuted: '#5C5C5C',      // Readable muted (was #737373)
   textInverse: '#FFFFFF',
   
   // Brand
@@ -212,25 +212,25 @@ export const lightTheme: ThemeColors = {
 
 export const darkTheme: ThemeColors = {
   // Backgrounds
-  background: '#1A1A1A',
-  surface: '#2D2D2D',
-  surfaceSecondary: '#404040',
+  background: '#121212',
+  surface: '#1E1E1E',
+  surfaceSecondary: '#2A2A2A',
   
-  // Text
-  text: '#E8E8E8',
-  textSecondary: '#A3A3A1',
-  textMuted: '#737373',
-  textInverse: '#1A1A1A',
+  // Text - HIGH CONTRAST for readability
+  text: '#F5F5F5',           // Very light for maximum readability
+  textSecondary: '#BDBDBD',  // Softer but still readable
+  textMuted: '#9E9E9E',      // Muted but visible (was #737373 - too dark!)
+  textInverse: '#121212',
   
   // Brand
-  primary: '#476F9F',
+  primary: '#5A8BC4',        // Slightly brighter for dark mode visibility
   primaryText: '#FFFFFF',
   secondary: '#E7C747',
-  secondaryText: '#1A1A1A',
+  secondaryText: '#121212',
   
   // Borders
-  border: '#404040',
-  borderLight: '#525252',
+  border: '#3A3A3A',
+  borderLight: '#4A4A4A',
   
   // Status
   success: '#4ADE80',
@@ -239,11 +239,11 @@ export const darkTheme: ThemeColors = {
   info: '#60A5FA',
   
   // Specific UI
-  verseNumber: '#E7C747',
-  cardBackground: '#2D2D2D',
-  inputBackground: '#404040',
-  inputBorder: '#525252',
-  placeholder: '#737373',
+  verseNumber: '#F0D861',    // Brighter gold for dark mode
+  cardBackground: '#1E1E1E',
+  inputBackground: '#2A2A2A',
+  inputBorder: '#4A4A4A',
+  placeholder: '#8A8A8A',
   
   // Highlights (darker for dark mode)
   highlightYellow: '#854D0E',
