@@ -3,9 +3,10 @@
     "name": "Davar",
     "slug": "davar",
     "version": "1.0.0",
+    "description": "A beautiful Bible study app with Hebrew & Greek interlinear, word studies, reading plans, and offline-first sync.",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "scheme": "davar",
     "splash": {
@@ -16,8 +17,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.davar.bible",
+      "buildNumber": "1",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDisplayName": "Davar",
+        "NSMicrophoneUsageDescription": "Davar uses the microphone for audio Bible playback features."
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
@@ -25,7 +32,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1E3A5F"
       },
-      "package": "app.davar.bible"
+      "package": "app.davar.bible",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -47,6 +59,8 @@
         "projectId": "33603a13-a8af-488c-9bf3-c67f1e06a6cb"
       }
     },
-    "owner": "nathansenn"
+    "owner": "nathansenn",
+    "primaryColor": "#1E3A5F",
+    "privacy": "public"
   }
 }
