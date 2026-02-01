@@ -97,7 +97,7 @@ export default function HomeScreen() {
       <View className="px-6 -mt-4">
         {/* Today's Reading Card */}
         <TouchableOpacity
-          onPress={() => router.push('/read/psalm-23')}
+          onPress={() => router.push('/read/psalm-23' as any)}
           activeOpacity={0.9}
           className="bg-white rounded-2xl p-6 shadow-lg shadow-black/10 mb-6"
         >
@@ -138,7 +138,7 @@ export default function HomeScreen() {
 
           {/* Start Reading Button */}
           <TouchableOpacity
-            onPress={() => router.push('/read/psalm-23')}
+            onPress={() => router.push('/read/psalm-23' as any)}
             className="bg-primary rounded-xl py-4 items-center flex-row justify-center"
             activeOpacity={0.8}
           >

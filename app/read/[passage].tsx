@@ -1,88 +1,299 @@
-import { useState, useEffect } from 'react';
+/**
+ * Passage Reading Screen
+ * Full chapter display with interlinear, navigation, and word study
+ */
+
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingsStore, useReadingStore } from '../../src/stores';
+import { bibleService } from '../../src/services/bibleService';
+import { ChapterView } from '../../src/components/reading/ChapterView';
+import { WordDetailModal } from '../../src/components/study/WordDetailModal';
+import type { TranslationCode, Verse, Chapter, Book } from '../../src/types/bible';
 
-// Sample scripture data (in real app, this would come from the database)
-const SAMPLE_SCRIPTURE: Record<string, { title: string; verses: string[] }> = {
-  'psalm-23': {
-    title: 'Psalm 23',
-    verses: [
-      'The LORD is my shepherd; I shall not want.',
-      'He makes me lie down in green pastures. He leads me beside still waters.',
-      'He restores my soul. He leads me in paths of righteousness for his name\'s sake.',
-      'Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me; your rod and your staff, they comfort me.',
-      'You prepare a table before me in the presence of my enemies; you anoint my head with oil; my cup overflows.',
-      'Surely goodness and mercy shall follow me all the days of my life, and I shall dwell in the house of the LORD forever.',
-    ],
-  },
-  'john-3-16': {
-    title: 'John 3:16',
-    verses: [
-      'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.',
-    ],
-  },
-  'genesis-1': {
-    title: 'Genesis 1',
-    verses: [
-      'In the beginning, God created the heavens and the earth.',
-      'The earth was without form and void, and darkness was over the face of the deep. And the Spirit of God was hovering over the face of the waters.',
-      'And God said, "Let there be light," and there was light.',
-      'And God saw that the light was good. And God separated the light from the darkness.',
-      'God called the light Day, and the darkness he called Night. And there was evening and there was morning, the first day.',
-    ],
-  },
+// Map URL slugs to book IDs
+const SLUG_TO_BOOK_ID: Record<string, string> = {
+  'genesis': 'GEN', 'exodus': 'EXO', 'leviticus': 'LEV', 'numbers': 'NUM',
+  'deuteronomy': 'DEU', 'joshua': 'JOS', 'judges': 'JDG', 'ruth': 'RUT',
+  '1-samuel': '1SA', '2-samuel': '2SA', '1-kings': '1KI', '2-kings': '2KI',
+  '1-chronicles': '1CH', '2-chronicles': '2CH', 'ezra': 'EZR', 'nehemiah': 'NEH',
+  'esther': 'EST', 'job': 'JOB', 'psalms': 'PSA', 'psalm': 'PSA',
+  'proverbs': 'PRO', 'ecclesiastes': 'ECC', 'song-of-solomon': 'SNG',
+  'isaiah': 'ISA', 'jeremiah': 'JER', 'lamentations': 'LAM', 'ezekiel': 'EZK',
+  'daniel': 'DAN', 'hosea': 'HOS', 'joel': 'JOL', 'amos': 'AMO',
+  'obadiah': 'OBA', 'jonah': 'JON', 'micah': 'MIC', 'nahum': 'NAM',
+  'habakkuk': 'HAB', 'zephaniah': 'ZEP', 'haggai': 'HAG', 'zechariah': 'ZEC',
+  'malachi': 'MAL', 'matthew': 'MAT', 'mark': 'MRK', 'luke': 'LUK',
+  'john': 'JHN', 'acts': 'ACT', 'romans': 'ROM', '1-corinthians': '1CO',
+  '2-corinthians': '2CO', 'galatians': 'GAL', 'ephesians': 'EPH',
+  'philippians': 'PHP', 'colossians': 'COL', '1-thessalonians': '1TH',
+  '2-thessalonians': '2TH', '1-timothy': '1TI', '2-timothy': '2TI',
+  'titus': 'TIT', 'philemon': 'PHM', 'hebrews': 'HEB', 'james': 'JAS',
+  '1-peter': '1PE', '2-peter': '2PE', '1-john': '1JN', '2-john': '2JN',
+  '3-john': '3JN', 'jude': 'JUD', 'revelation': 'REV',
 };
+
+// Reverse mapping for display
+const BOOK_ID_TO_SLUG: Record<string, string> = Object.fromEntries(
+  Object.entries(SLUG_TO_BOOK_ID).map(([slug, id]) => [id, slug])
+);
+
+interface ParsedPassage {
+  bookId: string;
+  bookName: string;
+  chapter: number;
+}
+
+function parsePassageSlug(slug: string): ParsedPassage | null {
+  if (!slug) return null;
+  
+  // Handle formats: "genesis-1", "psalm-23", "1-john-3", "john-3-16"
+  const parts = slug.toLowerCase().split('-');
+  
+  // Try to find where the chapter number is
+  let bookParts: string[] = [];
+  let chapter = 1;
+  
+  for (let i = 0; i < parts.length; i++) {
+    const num = parseInt(parts[i], 10);
+    
+    // Check if this is a book number prefix (1, 2, 3 for numbered books)
+    if (i === 0 && (num === 1 || num === 2 || num === 3) && parts.length > 1) {
+      bookParts.push(parts[i]);
+      continue;
+    }
+    
+    // If it's a number and we have book parts, it's the chapter
+    if (!isNaN(num) && bookParts.length > 0) {
+      chapter = num;
+      break;
+    }
+    
+    bookParts.push(parts[i]);
+  }
+  
+  const bookSlug = bookParts.join('-');
+  const bookId = SLUG_TO_BOOK_ID[bookSlug];
+  
+  if (!bookId) {
+    // Try without trailing numbers for verse references like "john-3-16"
+    const altSlug = bookParts.slice(0, -1).join('-');
+    const altBookId = SLUG_TO_BOOK_ID[altSlug];
+    if (altBookId) {
+      return {
+        bookId: altBookId,
+        bookName: bibleService.getBooks().find(b => b.id === altBookId)?.name || altBookId,
+        chapter: parseInt(bookParts[bookParts.length - 1], 10) || 1,
+      };
+    }
+    return null;
+  }
+  
+  const bookMeta = bibleService.getBooks().find(b => b.id === bookId);
+  
+  return {
+    bookId,
+    bookName: bookMeta?.name || bookId,
+    chapter: Math.max(1, Math.min(chapter, bookMeta?.chapters || 150)),
+  };
+}
 
 export default function PassageScreen() {
   const { passage } = useLocalSearchParams<{ passage: string }>();
   const router = useRouter();
-  const { fontSizeValue, showVerseNumbers } = useSettingsStore();
+  
+  // Settings
+  const {
+    defaultTranslation,
+    fontSizeValue,
+    showOriginalLanguage,
+    showVerseNumbers,
+  } = useSettingsStore();
+  
   const { markTodayComplete } = useReadingStore();
+  
+  // State
   const [isLoading, setIsLoading] = useState(true);
-  const [scripture, setScripture] = useState<{ title: string; verses: string[] } | null>(null);
-  const [selectedVerses, setSelectedVerses] = useState<number[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [parsedPassage, setParsedPassage] = useState<ParsedPassage | null>(null);
+  const [chapter, setChapter] = useState<Chapter | null>(null);
+  const [originalChapter, setOriginalChapter] = useState<Chapter | null>(null);
+  const [bookName, setBookName] = useState('');
+  const [translation, setTranslation] = useState<TranslationCode>(defaultTranslation as TranslationCode);
+  const [showInterlinear, setShowInterlinear] = useState(showOriginalLanguage);
   const [readingComplete, setReadingComplete] = useState(false);
-
+  
+  // Word study modal
+  const [wordModalVisible, setWordModalVisible] = useState(false);
+  const [selectedWord, setSelectedWord] = useState('');
+  const [selectedVerse, setSelectedVerse] = useState<Verse | null>(null);
+  
+  // Parse passage and load data
   useEffect(() => {
-    // Simulate loading scripture
-    const timer = setTimeout(() => {
-      const key = passage?.toLowerCase() || '';
-      // Try to find matching scripture or default to psalm-23
-      const found = SAMPLE_SCRIPTURE[key] || SAMPLE_SCRIPTURE['psalm-23'];
-      setScripture(found);
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [passage]);
-
-  const handleVersePress = (index: number) => {
-    setSelectedVerses((prev) =>
-      prev.includes(index)
-        ? prev.filter((i) => i !== index)
-        : [...prev, index]
-    );
-  };
-
-  const handleMarkComplete = () => {
-    markTodayComplete([scripture?.title || passage || 'Unknown']);
-    setReadingComplete(true);
-  };
-
-  const formatPassageTitle = (p: string) => {
-    return p
-      ?.replace(/-/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase()) || 'Scripture';
-  };
-
+    const loadChapter = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const parsed = parsePassageSlug(passage || '');
+        
+        if (!parsed) {
+          setError('Invalid passage reference');
+          setIsLoading(false);
+          return;
+        }
+        
+        setParsedPassage(parsed);
+        setBookName(parsed.bookName);
+        
+        // Load main translation
+        const chapterData = bibleService.getChapter(
+          parsed.bookId,
+          parsed.chapter,
+          translation
+        );
+        
+        if (!chapterData) {
+          setError(`Chapter not found: ${parsed.bookName} ${parsed.chapter}`);
+          setIsLoading(false);
+          return;
+        }
+        
+        setChapter(chapterData);
+        
+        // Load original language if enabled
+        if (showInterlinear) {
+          const originalTranslation = bibleService.getOriginalLanguageTranslation(parsed.bookId);
+          const originalData = bibleService.getChapter(
+            parsed.bookId,
+            parsed.chapter,
+            originalTranslation
+          );
+          setOriginalChapter(originalData);
+        } else {
+          setOriginalChapter(null);
+        }
+        
+      } catch (err) {
+        console.error('Error loading chapter:', err);
+        setError('Failed to load chapter');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadChapter();
+  }, [passage, translation, showInterlinear]);
+  
+  // Navigation helpers
+  const navigateToChapter = useCallback((bookId: string, chapterNum: number) => {
+    const slug = BOOK_ID_TO_SLUG[bookId] || bookId.toLowerCase();
+    router.replace(`/read/${slug}-${chapterNum}`);
+  }, [router]);
+  
+  const handlePreviousChapter = useCallback(() => {
+    if (!parsedPassage) return;
+    
+    if (parsedPassage.chapter > 1) {
+      navigateToChapter(parsedPassage.bookId, parsedPassage.chapter - 1);
+    } else {
+      // Go to previous book's last chapter
+      const books = bibleService.getBooks();
+      const currentIndex = books.findIndex(b => b.id === parsedPassage.bookId);
+      if (currentIndex > 0) {
+        const prevBook = books[currentIndex - 1];
+        navigateToChapter(prevBook.id, prevBook.chapters);
+      }
+    }
+  }, [parsedPassage, navigateToChapter]);
+  
+  const handleNextChapter = useCallback(() => {
+    if (!parsedPassage) return;
+    
+    const maxChapters = bibleService.getChapterCount(parsedPassage.bookId);
+    
+    if (parsedPassage.chapter < maxChapters) {
+      navigateToChapter(parsedPassage.bookId, parsedPassage.chapter + 1);
+    } else {
+      // Go to next book's first chapter
+      const books = bibleService.getBooks();
+      const currentIndex = books.findIndex(b => b.id === parsedPassage.bookId);
+      if (currentIndex < books.length - 1) {
+        const nextBook = books[currentIndex + 1];
+        navigateToChapter(nextBook.id, 1);
+      }
+    }
+  }, [parsedPassage, navigateToChapter]);
+  
+  // Word press handler
+  const handleWordPress = useCallback((verse: Verse, word: string, position: number) => {
+    setSelectedWord(word.replace(/[.,;:!?"'()]/g, '')); // Clean punctuation
+    setSelectedVerse(verse);
+    setWordModalVisible(true);
+  }, []);
+  
+  // Toggle interlinear
+  const toggleInterlinear = useCallback(() => {
+    setShowInterlinear(prev => !prev);
+  }, []);
+  
+  // Mark complete
+  const handleMarkComplete = useCallback(() => {
+    if (parsedPassage) {
+      markTodayComplete([`${bookName} ${parsedPassage.chapter}`]);
+      setReadingComplete(true);
+    }
+  }, [parsedPassage, bookName, markTodayComplete]);
+  
+  // Translation picker
+  const handleTranslationChange = useCallback(() => {
+    const translations: TranslationCode[] = ['KJV', 'ASV', 'BBE', 'BSB'];
+    const currentIndex = translations.indexOf(translation);
+    const nextIndex = (currentIndex + 1) % translations.length;
+    setTranslation(translations[nextIndex]);
+  }, [translation]);
+  
+  // Chapter data for ChapterView
+  const chapterViewData = useMemo(() => {
+    if (!chapter || !parsedPassage) return null;
+    
+    return {
+      book: bookName,
+      bookId: parsedPassage.bookId,
+      chapter: parsedPassage.chapter,
+      verses: chapter.verses,
+      translation,
+    };
+  }, [chapter, parsedPassage, bookName, translation]);
+  
+  const originalChapterViewData = useMemo(() => {
+    if (!originalChapter || !parsedPassage) return undefined;
+    
+    const originalTranslation = bibleService.getOriginalLanguageTranslation(parsedPassage.bookId);
+    return {
+      book: bookName,
+      bookId: parsedPassage.bookId,
+      chapter: parsedPassage.chapter,
+      verses: originalChapter.verses,
+      translation: originalTranslation,
+    };
+  }, [originalChapter, parsedPassage, bookName]);
+  
+  // Determine original language for current book
+  const originalLanguage = useMemo(() => {
+    if (!parsedPassage) return 'greek';
+    return bibleService.getOriginalLanguageForBook(parsedPassage.bookId);
+  }, [parsedPassage]);
+  
+  // Loading state
   if (isLoading) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
@@ -91,92 +302,140 @@ export default function PassageScreen() {
       </View>
     );
   }
-
+  
+  // Error state
+  if (error || !chapterViewData) {
+    return (
+      <>
+        <Stack.Screen
+          options={{
+            headerTitle: 'Error',
+          }}
+        />
+        <View className="flex-1 bg-background items-center justify-center px-6">
+          <Ionicons name="alert-circle" size={64} color="#EF4444" />
+          <Text className="text-red-500 text-lg font-semibold mt-4">
+            {error || 'Chapter not found'}
+          </Text>
+          <Text className="text-muted text-center mt-2">
+            Please try a different passage
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="mt-6 bg-primary px-6 py-3 rounded-xl"
+          >
+            <Text className="text-white font-semibold">Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </>
+    );
+  }
+  
   return (
     <>
       <Stack.Screen
         options={{
-          headerTitle: scripture?.title || formatPassageTitle(passage || ''),
+          headerTitle: `${bookName} ${parsedPassage?.chapter}`,
           headerRight: () => (
-            <TouchableOpacity className="mr-2">
-              <Ionicons name="bookmark-outline" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
+            <View className="flex-row items-center gap-2 mr-2">
+              {/* Interlinear Toggle */}
+              <TouchableOpacity
+                onPress={toggleInterlinear}
+                className={`p-2 rounded-lg ${showInterlinear ? 'bg-white/20' : ''}`}
+              >
+                <Text className="text-white text-xs font-bold">
+                  {originalLanguage === 'hebrew' ? 'עב' : 'ελ'}
+                </Text>
+              </TouchableOpacity>
+              
+              {/* Translation Badge */}
+              <TouchableOpacity
+                onPress={handleTranslationChange}
+                className="bg-white/20 px-2 py-1 rounded"
+              >
+                <Text className="text-white text-xs font-semibold">
+                  {translation}
+                </Text>
+              </TouchableOpacity>
+              
+              {/* Bookmark */}
+              <TouchableOpacity>
+                <Ionicons name="bookmark-outline" size={22} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
+      
       <View className="flex-1 bg-background">
-        <ScrollView
-          className="flex-1 px-6 py-6"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 150 }}
-        >
-          {/* Scripture Content */}
-          <View className="bg-white rounded-2xl p-6 shadow-sm">
-            {scripture?.verses.map((verse, index) => (
+        {/* Chapter View */}
+        <ChapterView
+          chapter={chapterViewData}
+          bookId={parsedPassage!.bookId}
+          originalChapter={showInterlinear ? originalChapterViewData : undefined}
+          fontSize={fontSizeValue}
+          displayMode={showInterlinear ? 'interlinear' : 'verse'}
+          onWordPress={handleWordPress}
+          onPreviousChapter={handlePreviousChapter}
+          onNextChapter={handleNextChapter}
+        />
+        
+        {/* Bottom Bar */}
+        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 pb-8">
+          <View className="flex-row items-center justify-between">
+            {/* Prev/Next Navigation */}
+            <TouchableOpacity
+              onPress={handlePreviousChapter}
+              className="flex-row items-center px-3 py-2"
+            >
+              <Ionicons name="chevron-back" size={20} color="#1E3A5F" />
+              <Text className="text-primary font-medium ml-1">Prev</Text>
+            </TouchableOpacity>
+            
+            {/* Complete Button */}
+            {readingComplete ? (
+              <View className="flex-row items-center px-4 py-2">
+                <Ionicons name="checkmark-circle" size={24} color="#22C55E" />
+                <Text className="text-green-600 font-semibold ml-2">
+                  Complete! 🎉
+                </Text>
+              </View>
+            ) : (
               <TouchableOpacity
-                key={index}
-                onPress={() => handleVersePress(index)}
-                className={`mb-4 p-3 rounded-xl ${
-                  selectedVerses.includes(index) ? 'bg-secondary/20' : ''
-                }`}
-                activeOpacity={0.7}
+                onPress={handleMarkComplete}
+                className="bg-primary/10 rounded-xl px-4 py-2 flex-row items-center"
               >
-                <Text
-                  style={{ fontSize: fontSizeValue, lineHeight: fontSizeValue * 1.8 }}
-                  className="text-text font-serif"
-                >
-                  {showVerseNumbers && (
-                    <Text className="text-primary font-bold">
-                      {index + 1}{' '}
-                    </Text>
-                  )}
-                  {verse}
+                <Ionicons name="checkmark-circle-outline" size={20} color="#1E3A5F" />
+                <Text className="text-primary font-semibold ml-2">
+                  Mark Complete
                 </Text>
               </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Selection Actions */}
-          {selectedVerses.length > 0 && (
-            <View className="flex-row gap-3 mt-4">
-              <TouchableOpacity className="flex-1 bg-primary/10 rounded-xl py-3 flex-row items-center justify-center">
-                <Ionicons name="color-palette" size={20} color="#1E3A5F" />
-                <Text className="text-primary font-medium ml-2">Highlight</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-1 bg-primary/10 rounded-xl py-3 flex-row items-center justify-center">
-                <Ionicons name="create" size={20} color="#1E3A5F" />
-                <Text className="text-primary font-medium ml-2">Note</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-1 bg-primary/10 rounded-xl py-3 flex-row items-center justify-center">
-                <Ionicons name="share" size={20} color="#1E3A5F" />
-                <Text className="text-primary font-medium ml-2">Share</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </ScrollView>
-
-        {/* Bottom Action Bar */}
-        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-border px-6 py-4 pb-8">
-          {readingComplete ? (
-            <View className="flex-row items-center justify-center py-3">
-              <Ionicons name="checkmark-circle" size={28} color="#22C55E" />
-              <Text className="text-green-600 font-semibold text-lg ml-2">
-                Reading Complete! 🎉
-              </Text>
-            </View>
-          ) : (
+            )}
+            
+            {/* Next Navigation */}
             <TouchableOpacity
-              onPress={handleMarkComplete}
-              className="bg-primary rounded-xl py-4 items-center flex-row justify-center"
-              activeOpacity={0.8}
+              onPress={handleNextChapter}
+              className="flex-row items-center px-3 py-2"
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="#FFFFFF" />
-              <Text className="text-white font-semibold text-lg ml-2">
-                Mark as Complete
-              </Text>
+              <Text className="text-primary font-medium mr-1">Next</Text>
+              <Ionicons name="chevron-forward" size={20} color="#1E3A5F" />
             </TouchableOpacity>
-          )}
+          </View>
         </View>
+        
+        {/* Word Study Modal */}
+        <WordDetailModal
+          visible={wordModalVisible}
+          onClose={() => setWordModalVisible(false)}
+          word={selectedWord}
+          context={selectedVerse ? {
+            verse: `${bookName} ${parsedPassage?.chapter}:${selectedVerse.number}`,
+            translation,
+            bookId: parsedPassage?.bookId,
+            chapter: parsedPassage?.chapter,
+            verseNum: selectedVerse.number,
+          } : undefined}
+        />
       </View>
     </>
   );

@@ -36,6 +36,9 @@ export default function SettingsScreen() {
     notificationsEnabled, setNotificationsEnabled,
     defaultTranslation, setDefaultTranslation,
     showVerseNumbers, setShowVerseNumbers,
+    showOriginalLanguage, setShowOriginalLanguage,
+    originalLanguagePosition, setOriginalLanguagePosition,
+    showTransliteration, setShowTransliteration,
   } = useSettingsStore();
   const { streak, longestStreak, totalDaysRead, reset: resetReading } = useReadingStore();
 
@@ -133,6 +136,35 @@ export default function SettingsScreen() {
           isSwitch: true,
           switchValue: showVerseNumbers,
           onToggle: setShowVerseNumbers,
+        },
+      ],
+    },
+    {
+      title: 'Original Languages',
+      items: [
+        {
+          icon: 'language',
+          label: 'Show Hebrew/Greek',
+          isSwitch: true,
+          switchValue: showOriginalLanguage,
+          onToggle: setShowOriginalLanguage,
+        },
+        {
+          icon: 'swap-vertical',
+          label: 'Original Language Position',
+          value: originalLanguagePosition === 'above' ? 'Above English' : 'Below English',
+          onPress: () => {
+            setOriginalLanguagePosition(
+              originalLanguagePosition === 'above' ? 'below' : 'above'
+            );
+          },
+        },
+        {
+          icon: 'text-outline',
+          label: 'Show Transliteration',
+          isSwitch: true,
+          switchValue: showTransliteration,
+          onToggle: setShowTransliteration,
         },
       ],
     },
