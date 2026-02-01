@@ -18,6 +18,7 @@ import { bibleService } from '../../src/services/bibleService';
 import { ChapterView } from '../../src/components/reading/ChapterView';
 import { WordDetailModal } from '../../src/components/study/WordDetailModal';
 import { StrongsSearchModal } from '../../src/components/study/StrongsSearchModal';
+import { AudioControls } from '../../src/components/reading/AudioControls';
 import { parseReference, referenceToPath } from '../../src/utils/referenceParser';
 import type { TranslationCode, Verse, Chapter, Book } from '../../src/types/bible';
 
@@ -142,6 +143,10 @@ export default function PassageScreen() {
   // Strong's search modal
   const [strongsSearchVisible, setStrongsSearchVisible] = useState(false);
   const [searchStrongsNumber, setSearchStrongsNumber] = useState('');
+  
+  // Audio controls
+  const [showAudioControls, setShowAudioControls] = useState(false);
+  const [highlightedVerse, setHighlightedVerse] = useState<number>(0);
   
   // Parse passage and load data
   useEffect(() => {
@@ -386,6 +391,18 @@ export default function PassageScreen() {
                 </Text>
               </TouchableOpacity>
               
+              {/* Audio Button */}
+              <TouchableOpacity
+                onPress={() => setShowAudioControls(!showAudioControls)}
+                className={`p-2 rounded-lg ${showAudioControls ? 'bg-white/20' : ''}`}
+              >
+                <Ionicons 
+                  name={showAudioControls ? "volume-high" : "volume-medium-outline"} 
+                  size={22} 
+                  color="#FFFFFF" 
+                />
+              </TouchableOpacity>
+              
               {/* Bookmark */}
               <TouchableOpacity>
                 <Ionicons name="bookmark-outline" size={22} color="#FFFFFF" />
@@ -450,6 +467,17 @@ export default function PassageScreen() {
             </TouchableOpacity>
           </View>
         </View>
+        
+        {/* Audio Controls */}
+        {chapter && (
+          <AudioControls
+            verses={chapter.verses}
+            chapterTitle={`${bookName} ${parsedPassage?.chapter}`}
+            visible={showAudioControls}
+            onVisibilityChange={setShowAudioControls}
+            onVerseHighlight={setHighlightedVerse}
+          />
+        )}
         
         {/* Word Study Modal */}
         <WordDetailModal
