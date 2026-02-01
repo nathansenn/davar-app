@@ -17,6 +17,8 @@ import { useSettingsStore, useReadingStore } from '../../src/stores';
 import { bibleService } from '../../src/services/bibleService';
 import { ChapterView } from '../../src/components/reading/ChapterView';
 import { WordDetailModal } from '../../src/components/study/WordDetailModal';
+import { StrongsSearchModal } from '../../src/components/study/StrongsSearchModal';
+import { parseReference, referenceToPath } from '../../src/utils/referenceParser';
 import type { TranslationCode, Verse, Chapter, Book } from '../../src/types/bible';
 
 // Map URL slugs to book IDs
@@ -135,6 +137,11 @@ export default function PassageScreen() {
   const [wordModalVisible, setWordModalVisible] = useState(false);
   const [selectedWord, setSelectedWord] = useState('');
   const [selectedVerse, setSelectedVerse] = useState<Verse | null>(null);
+  const [selectedStrongsNumber, setSelectedStrongsNumber] = useState<string | undefined>();
+  
+  // Strong's search modal
+  const [strongsSearchVisible, setStrongsSearchVisible] = useState(false);
+  const [searchStrongsNumber, setSearchStrongsNumber] = useState('');
   
   // Parse passage and load data
   useEffect(() => {
@@ -234,10 +241,31 @@ export default function PassageScreen() {
   }, [parsedPassage, navigateToChapter]);
   
   // Word press handler
-  const handleWordPress = useCallback((verse: Verse, word: string, position: number) => {
+  const handleWordPress = useCallback((verse: Verse, word: string, position: number, strongsNumber?: string) => {
     setSelectedWord(word.replace(/[.,;:!?"'()]/g, '')); // Clean punctuation
     setSelectedVerse(verse);
+    setSelectedStrongsNumber(strongsNumber);
     setWordModalVisible(true);
+  }, []);
+  
+  // Navigate to a cross-reference
+  const handleNavigateToReference = useCallback((reference: string) => {
+    const parsed = parseReference(reference);
+    if (parsed) {
+      setWordModalVisible(false);
+      const path = referenceToPath(parsed);
+      // Use replace to avoid deep navigation stack
+      router.push(path as any);
+    } else {
+      Alert.alert('Invalid Reference', `Could not parse reference: ${reference}`);
+    }
+  }, [router]);
+  
+  // Search Strong's number across the Bible
+  const handleSearchStrongs = useCallback((strongsNumber: string) => {
+    setWordModalVisible(false);
+    setSearchStrongsNumber(strongsNumber);
+    setStrongsSearchVisible(true);
   }, []);
   
   // Toggle interlinear
@@ -428,6 +456,7 @@ export default function PassageScreen() {
           visible={wordModalVisible}
           onClose={() => setWordModalVisible(false)}
           word={selectedWord}
+          strongsNumber={selectedStrongsNumber}
           context={selectedVerse ? {
             verse: `${bookName} ${parsedPassage?.chapter}:${selectedVerse.number}`,
             translation,
@@ -435,6 +464,19 @@ export default function PassageScreen() {
             chapter: parsedPassage?.chapter,
             verseNum: selectedVerse.number,
           } : undefined}
+          onNavigateToReference={handleNavigateToReference}
+          onSearchStrongs={handleSearchStrongs}
+        />
+        
+        {/* Strong's Search Modal */}
+        <StrongsSearchModal
+          visible={strongsSearchVisible}
+          onClose={() => setStrongsSearchVisible(false)}
+          strongsNumber={searchStrongsNumber}
+          onNavigateToVerse={(ref) => {
+            setStrongsSearchVisible(false);
+            handleNavigateToReference(ref);
+          }}
         />
       </View>
     </>
