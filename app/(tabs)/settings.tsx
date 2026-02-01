@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,12 @@ import {
   ScrollView,
   Switch,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore, useSettingsStore, useReadingStore } from '../../src/stores';
+import { syncService } from '../../src/services/syncService';
 
 type SettingSection = {
   title: string;
@@ -29,7 +31,7 @@ type SettingItem = {
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, token, logout } = useAuthStore();
   const { 
     theme, setTheme,
     fontSize, setFontSize,
@@ -41,6 +43,50 @@ export default function SettingsScreen() {
     showTransliteration, setShowTransliteration,
   } = useSettingsStore();
   const { streak, longestStreak, totalDaysRead, reset: resetReading } = useReadingStore();
+  
+  // Sync status
+  const [syncStatus, setSyncStatus] = useState(syncService.getStatus());
+  
+  useEffect(() => {
+    // Initialize sync service
+    syncService.init();
+    
+    // Subscribe to sync status changes
+    const unsubscribe = syncService.subscribe(setSyncStatus);
+    return unsubscribe;
+  }, []);
+  
+  const handleSync = useCallback(async () => {
+    if (!token) {
+      Alert.alert('Sign In Required', 'Please sign in to sync your data across devices.');
+      return;
+    }
+    
+    if (!syncStatus.isOnline) {
+      Alert.alert('No Connection', 'You are currently offline. Your changes will sync when you are back online.');
+      return;
+    }
+    
+    try {
+      await syncService.forceSync(token);
+      Alert.alert('Sync Complete', 'Your data has been synced successfully.');
+    } catch (error) {
+      Alert.alert('Sync Failed', 'Failed to sync your data. Please try again later.');
+    }
+  }, [token, syncStatus.isOnline]);
+  
+  const formatLastSync = (timestamp: number | null): string => {
+    if (!timestamp) return 'Never';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -195,6 +241,19 @@ export default function SettingsScreen() {
           isSwitch: true,
           switchValue: notificationsEnabled,
           onToggle: setNotificationsEnabled,
+        },
+      ],
+    },
+    {
+      title: 'Sync',
+      items: [
+        {
+          icon: syncStatus.isOnline ? 'cloud-done' : 'cloud-offline',
+          label: syncStatus.isSyncing ? 'Syncing...' : 'Sync Now',
+          value: syncStatus.pendingCount > 0 
+            ? `${syncStatus.pendingCount} pending changes` 
+            : `Last synced: ${formatLastSync(syncStatus.lastSyncAt)}`,
+          onPress: handleSync,
         },
       ],
     },

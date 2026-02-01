@@ -4,6 +4,7 @@
 
 export * from './bibleService';
 export * from './strongsService';
+export { syncService } from './syncService';
 
 // Export planService functions (excluding StreakInfo to avoid duplicate)
 export {
