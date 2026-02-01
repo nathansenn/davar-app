@@ -119,9 +119,10 @@ export default function SettingsScreen() {
           value: defaultTranslation,
           onPress: () => {
             Alert.alert('Default Translation', 'Select your preferred translation', [
-              { text: 'WEB', onPress: () => setDefaultTranslation('WEB') },
               { text: 'KJV', onPress: () => setDefaultTranslation('KJV') },
-              { text: 'ESV', onPress: () => setDefaultTranslation('ESV') },
+              { text: 'ASV', onPress: () => setDefaultTranslation('ASV') },
+              { text: 'BBE', onPress: () => setDefaultTranslation('BBE') },
+              { text: 'BSB', onPress: () => setDefaultTranslation('BSB') },
               { text: 'Cancel', style: 'cancel' },
             ]);
           },

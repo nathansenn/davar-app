@@ -26,7 +26,7 @@ async function loadHebrewData(): Promise<Record<string, StrongsEntry>> {
     // In React Native, use require for bundled assets
     const data = require('../../assets/strongs/hebrew.json');
     hebrewData = data;
-    return hebrewData;
+    return hebrewData as Record<string, StrongsEntry>;
   } catch (error) {
     console.error('Failed to load Hebrew Strong\'s data:', error);
     return {};
@@ -43,7 +43,7 @@ async function loadGreekData(): Promise<Record<string, StrongsEntry>> {
     // In React Native, use require for bundled assets
     const data = require('../../assets/strongs/greek.json');
     greekData = data;
-    return greekData;
+    return greekData as Record<string, StrongsEntry>;
   } catch (error) {
     console.error('Failed to load Greek Strong\'s data:', error);
     return {};

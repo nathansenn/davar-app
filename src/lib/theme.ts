@@ -62,6 +62,7 @@ export const colors = {
     blue: { light: '#BFDBFE', dark: '#1E40AF' },
     pink: { light: '#FBCFE8', dark: '#9D174D' },
     purple: { light: '#DDD6FE', dark: '#5B21B6' },
+    orange: { light: '#FED7AA', dark: '#C2410C' },
   },
 } as const;
 
@@ -162,6 +163,7 @@ export interface ThemeColors {
   highlightBlue: string;
   highlightPink: string;
   highlightPurple: string;
+  highlightOrange: string;
 }
 
 export const lightTheme: ThemeColors = {
@@ -205,6 +207,7 @@ export const lightTheme: ThemeColors = {
   highlightBlue: '#BFDBFE',
   highlightPink: '#FBCFE8',
   highlightPurple: '#DDD6FE',
+  highlightOrange: '#FED7AA',
 };
 
 export const darkTheme: ThemeColors = {
@@ -248,6 +251,7 @@ export const darkTheme: ThemeColors = {
   highlightBlue: '#1E40AF',
   highlightPink: '#9D174D',
   highlightPurple: '#5B21B6',
+  highlightOrange: '#C2410C',
 };
 
 // ===========================================
@@ -291,7 +295,7 @@ export function useTheme(): { theme: ThemeColors; isDark: boolean; mode: 'light'
 // ===========================================
 
 export function getHighlightColor(
-  color: 'yellow' | 'green' | 'blue' | 'pink' | 'purple',
+  color: 'yellow' | 'green' | 'blue' | 'pink' | 'purple' | 'orange',
   isDark: boolean
 ): string {
   const colorMap = {
@@ -300,6 +304,7 @@ export function getHighlightColor(
     blue: isDark ? darkTheme.highlightBlue : lightTheme.highlightBlue,
     pink: isDark ? darkTheme.highlightPink : lightTheme.highlightPink,
     purple: isDark ? darkTheme.highlightPurple : lightTheme.highlightPurple,
+    orange: isDark ? darkTheme.highlightOrange : lightTheme.highlightOrange,
   };
   return colorMap[color];
 }

@@ -1,9 +1,10 @@
 /**
- * Reading Components Index
+ * Reading Components
  */
 
-export { VerseText } from './VerseText';
-export { ChapterView } from './ChapterView';
-export { TranslationPicker } from './TranslationPicker';
-export { FontSizeControl } from './FontSizeControl';
-export { ReadingProgress, SegmentedProgress, ChapterDots } from './ReadingProgress';
+export * from './VerseText';
+export * from './ChapterView';
+export * from './TranslationPicker';
+export * from './FontSizeControl';
+export * from './ReadingProgress';
+export * from './InterlinearVerse';

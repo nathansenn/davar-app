@@ -1,6 +1,6 @@
 /**
  * Bible Service for Davar app
- * Provides access to bundled Bible texts
+ * Provides access to bundled Bible texts including original languages
  */
 
 import {
@@ -22,13 +22,21 @@ const kjvData = require('../../assets/bibles/kjv.json') as BibleData;
 const asvData = require('../../assets/bibles/asv.json') as BibleData;
 const bbeData = require('../../assets/bibles/bbe.json') as BibleData;
 const booksMetadata = require('../../assets/metadata/books.json') as BibleMetadata;
+
+// Lazy load larger files to improve startup time
+let wlcData: BibleData | null = null;
+let trData: BibleData | null = null;
+let bsbData: BibleData | null = null;
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 // Type the imported data
-const bibles: Record<TranslationCode, BibleData> = {
+const bibles: Record<TranslationCode, BibleData | null> = {
   KJV: kjvData,
   ASV: asvData,
   BBE: bbeData,
+  WLC: null, // Lazy loaded
+  TR: null,  // Lazy loaded
+  BSB: null, // Lazy loaded
 };
 
 const metadata = booksMetadata;
@@ -39,16 +47,40 @@ const translations: Record<TranslationCode, TranslationInfo> = {
     code: 'KJV',
     name: 'King James Version',
     description: 'The classic 1769 King James Version of the Bible',
+    language: 'en',
   },
   ASV: {
     code: 'ASV',
     name: 'American Standard Version',
     description: 'The 1901 American Standard Version, known for its accuracy',
+    language: 'en',
   },
   BBE: {
     code: 'BBE',
     name: 'Bible in Basic English',
     description: 'A translation using a limited vocabulary of 1000 words',
+    language: 'en',
+  },
+  BSB: {
+    code: 'BSB',
+    name: 'Berean Standard Bible',
+    description: 'A modern, literal translation',
+    language: 'en',
+    hasStrongs: true,
+  },
+  WLC: {
+    code: 'WLC',
+    name: 'Westminster Leningrad Codex',
+    description: 'The Hebrew Old Testament (Masoretic Text)',
+    language: 'he',
+    isOriginalLanguage: true,
+  },
+  TR: {
+    code: 'TR',
+    name: 'Textus Receptus',
+    description: 'The Greek New Testament (1550/1894)',
+    language: 'grc',
+    isOriginalLanguage: true,
   },
 };
 
@@ -56,10 +88,69 @@ class BibleService {
   private defaultTranslation: TranslationCode = 'KJV';
 
   /**
+   * Load a lazy-loaded translation
+   */
+  private loadTranslation(code: TranslationCode): BibleData | null {
+    if (bibles[code]) return bibles[code];
+    
+    try {
+      switch (code) {
+        case 'WLC':
+          if (!wlcData) {
+            wlcData = require('../../assets/bibles/wlc.json') as BibleData;
+          }
+          bibles.WLC = wlcData;
+          return wlcData;
+          
+        case 'TR':
+          if (!trData) {
+            trData = require('../../assets/bibles/tr.json') as BibleData;
+          }
+          bibles.TR = trData;
+          return trData;
+          
+        case 'BSB':
+          if (!bsbData) {
+            bsbData = require('../../assets/bibles/bsb.json') as BibleData;
+          }
+          bibles.BSB = bsbData;
+          return bsbData;
+          
+        default:
+          return bibles[code];
+      }
+    } catch (error) {
+      console.error(`Failed to load translation ${code}:`, error);
+      return null;
+    }
+  }
+
+  /**
    * Get list of available translations
    */
   getTranslations(): TranslationInfo[] {
     return Object.values(translations);
+  }
+
+  /**
+   * Get English translations only
+   */
+  getEnglishTranslations(): TranslationInfo[] {
+    return Object.values(translations).filter(t => t.language === 'en');
+  }
+
+  /**
+   * Get original language translations
+   */
+  getOriginalLanguageTranslations(): TranslationInfo[] {
+    return Object.values(translations).filter(t => t.isOriginalLanguage);
+  }
+
+  /**
+   * Get translation info
+   */
+  getTranslationInfo(code: TranslationCode): TranslationInfo | null {
+    return translations[code] || null;
   }
 
   /**
@@ -73,7 +164,7 @@ class BibleService {
    * Get a specific book
    */
   getBook(bookId: string, translation: TranslationCode = this.defaultTranslation): Book | null {
-    const bible = bibles[translation];
+    const bible = this.loadTranslation(translation);
     if (!bible) return null;
     
     return bible.books.find(b => b.id === bookId) || null;
@@ -137,6 +228,27 @@ class BibleService {
     return chapter.verses.filter(
       v => v.number >= startVerse && v.number <= endVerse
     );
+  }
+
+  /**
+   * Get original language for a book
+   */
+  getOriginalLanguageForBook(bookId: string): 'hebrew' | 'greek' {
+    const otBooks = [
+      'GEN', 'EXO', 'LEV', 'NUM', 'DEU', 'JOS', 'JDG', 'RUT',
+      '1SA', '2SA', '1KI', '2KI', '1CH', '2CH', 'EZR', 'NEH',
+      'EST', 'JOB', 'PSA', 'PRO', 'ECC', 'SNG', 'ISA', 'JER',
+      'LAM', 'EZK', 'DAN', 'HOS', 'JOL', 'AMO', 'OBA', 'JON',
+      'MIC', 'NAM', 'HAB', 'ZEP', 'HAG', 'ZEC', 'MAL'
+    ];
+    return otBooks.includes(bookId) ? 'hebrew' : 'greek';
+  }
+
+  /**
+   * Get original language translation code for a book
+   */
+  getOriginalLanguageTranslation(bookId: string): TranslationCode {
+    return this.getOriginalLanguageForBook(bookId) === 'hebrew' ? 'WLC' : 'TR';
   }
 
   /**
@@ -226,7 +338,7 @@ class BibleService {
     translation: TranslationCode = this.defaultTranslation,
     options?: { limit?: number; bookId?: string }
   ): SearchResult[] {
-    const bible = bibles[translation];
+    const bible = this.loadTranslation(translation);
     if (!bible) return [];
 
     const results: SearchResult[] = [];
@@ -290,7 +402,7 @@ class BibleService {
    * Set default translation
    */
   setDefaultTranslation(code: TranslationCode): void {
-    if (bibles[code]) {
+    if (translations[code]) {
       this.defaultTranslation = code;
     }
   }
@@ -300,6 +412,32 @@ class BibleService {
    */
   getDefaultTranslation(): TranslationCode {
     return this.defaultTranslation;
+  }
+
+  /**
+   * Preload a translation into memory
+   */
+  preloadTranslation(code: TranslationCode): void {
+    this.loadTranslation(code);
+  }
+
+  /**
+   * Clear cached translations to free memory
+   */
+  clearCache(code?: TranslationCode): void {
+    if (code) {
+      if (code === 'WLC') wlcData = null;
+      if (code === 'TR') trData = null;
+      if (code === 'BSB') bsbData = null;
+      bibles[code] = null;
+    } else {
+      wlcData = null;
+      trData = null;
+      bsbData = null;
+      bibles.WLC = null;
+      bibles.TR = null;
+      bibles.BSB = null;
+    }
   }
 }
 

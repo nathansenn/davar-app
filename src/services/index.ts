@@ -1,13 +1,41 @@
 /**
- * Services Index
- * 
- * Central export for all Davar services.
+ * Services index
  */
 
-// Database
+export * from './bibleService';
+export * from './strongsService';
+
+// Export planService functions (excluding StreakInfo to avoid duplicate)
 export {
+  type Passage,
+  type DayReading,
+  type PlanWithProgress,
+  getAvailablePlans,
+  getPlanById,
+  getTodaysReading,
+  calculateProgress,
+  calculateStreak,
+  getPlansWithProgress,
+  getDayReading,
+  formatPassagesForDisplay,
+  estimateReadingTime,
+  seedBuiltInPlans,
+} from './planService';
+
+// Export database types and functions
+export { 
   initDatabase,
   getDatabase,
+  type Preferences,
+  type ReadingPlan,
+  type ReadingLog,
+  type UserProgress,
+  type DaySchedule,
+  type PassageRef,
+  type StreakInfo,
+  type Highlight,
+  type Note,
+  type Bookmark,
   getPreferences,
   updatePreferences,
   getHighlights,
@@ -26,61 +54,4 @@ export {
   getStreaks,
   getReadingPlans,
   getReadingPlan,
-  createReadingPlan,
-  startPlan,
-  getProgress,
-  getAllProgress,
-  completeDay,
-  pausePlan,
-  resumePlan,
-  abandonPlan,
 } from './database';
-
-export type {
-  Preferences,
-  ReadingPlan,
-  DaySchedule,
-  PassageRef,
-  UserProgress,
-  ReadingLog,
-  Highlight,
-  Note,
-  Bookmark,
-  StreakInfo,
-} from './database';
-
-// Plan Service
-export {
-  getAvailablePlans,
-  getPlanById,
-  getTodaysReading,
-  calculateProgress,
-  calculateStreak,
-  getPlansWithProgress,
-  getDayReading,
-  formatPassagesForDisplay,
-  estimateReadingTime,
-  seedBuiltInPlans,
-} from './planService';
-
-export type {
-  Passage,
-  DayReading,
-  PlanWithProgress,
-} from './planService';
-
-// Bible Service
-export { bibleService, BibleService } from './bibleService';
-
-export type {
-  BibleData,
-  Book,
-  Chapter,
-  Verse,
-  BookMetadata,
-  BibleMetadata,
-  SearchResult,
-  VerseRef,
-  TranslationCode,
-  TranslationInfo,
-} from '../types/bible';

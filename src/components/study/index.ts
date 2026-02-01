@@ -1,7 +1,7 @@
 /**
- * Study Components Index
+ * Study Components
  */
 
-export { WordDetailModal } from './WordDetailModal';
-export { HighlightMenu, InlineHighlightMenu } from './HighlightMenu';
-export { NoteEditor, QuickNoteInput, NoteCard } from './NoteEditor';
+export * from './WordDetailModal';
+export * from './HighlightMenu';
+export * from './NoteEditor';

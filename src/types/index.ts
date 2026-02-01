@@ -2,8 +2,8 @@
  * Types index
  */
 
+// Export all types from bible.ts
 export * from './bible';
-export * from './ui';
 
-// Re-export extended types with simpler names for component use
-export type { ExtendedVerse as Verse, ExtendedChapter as Chapter } from './ui';
+// Export all types from ui.ts
+export * from './ui';
