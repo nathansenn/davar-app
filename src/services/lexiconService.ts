@@ -318,6 +318,24 @@ export interface EnhancedWordData {
   usageNotes?: string;
 }
 
+// Import the pre-computed frequency index
+import frequencyIndex from '../../assets/strongs/frequency-index.json';
+
+interface FrequencyEntry {
+  total: number;
+  ot: number;
+  nt: number;
+  topBooks: { book: string; count: number }[];
+}
+
+interface FrequencyIndexData {
+  version: string;
+  description: string;
+  frequencies: Record<string, FrequencyEntry>;
+}
+
+const frequencyData = frequencyIndex as FrequencyIndexData;
+
 class LexiconService {
   /**
    * Parse morphology code into human-readable format
@@ -331,45 +349,22 @@ class LexiconService {
   }
   
   /**
-   * Get word frequency data (mock - would connect to a database)
-   * TODO: Implement actual frequency lookup from indexed data
+   * Get word frequency data from pre-computed index
    */
   async getWordFrequency(strongsNumber: string): Promise<WordFrequency | null> {
-    // Common word frequencies (sample data)
-    const frequencies: Record<string, WordFrequency> = {
-      'H430': { total: 2606, ot: 2606, nt: 0, books: [
-        { bookId: 'GEN', count: 218 },
-        { bookId: 'PSA', count: 365 },
-        { bookId: 'ISA', count: 114 },
-      ]},
-      'H3068': { total: 6519, ot: 6519, nt: 0, books: [
-        { bookId: 'PSA', count: 695 },
-        { bookId: 'JER', count: 726 },
-        { bookId: 'EZK', count: 434 },
-      ]},
-      'H1': { total: 1210, ot: 1210, nt: 0, books: [
-        { bookId: 'GEN', count: 158 },
-        { bookId: 'EXO', count: 68 },
-        { bookId: 'DEU', count: 82 },
-      ]},
-      'G2316': { total: 1343, ot: 0, nt: 1343, books: [
-        { bookId: 'ROM', count: 153 },
-        { bookId: 'JHN', count: 83 },
-        { bookId: 'ACT', count: 166 },
-      ]},
-      'G2424': { total: 983, ot: 0, nt: 983, books: [
-        { bookId: 'MAT', count: 152 },
-        { bookId: 'LUK', count: 89 },
-        { bookId: 'JHN', count: 244 },
-      ]},
-      'G26': { total: 116, ot: 0, nt: 116, books: [
-        { bookId: 'JHN', count: 30 },
-        { bookId: '1JN', count: 18 },
-        { bookId: 'ROM', count: 9 },
-      ]},
-    };
+    const normalizedNumber = strongsNumber.toUpperCase();
+    const entry = frequencyData.frequencies[normalizedNumber];
     
-    return frequencies[strongsNumber.toUpperCase()] || null;
+    if (!entry) {
+      return null;
+    }
+    
+    return {
+      total: entry.total,
+      ot: entry.ot,
+      nt: entry.nt,
+      books: entry.topBooks.map(b => ({ bookId: b.book, count: b.count })),
+    };
   }
   
   /**
