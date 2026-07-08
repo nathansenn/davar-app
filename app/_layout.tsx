@@ -3,6 +3,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '../src/stores';
+import { useTheme } from '../src/lib/theme';
 import '../global.css';
 
 function useProtectedRoute() {
@@ -27,36 +28,39 @@ function useProtectedRoute() {
 
 export default function RootLayout() {
   const { isLoading } = useAuthStore();
-  
+  const { theme, isDark } = useTheme();
+
   useProtectedRoute();
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#1E3A5F" />
+      <View
+        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.background }}
+      >
+        <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
 
   return (
     <>
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#FAFAF8' },
+          contentStyle: { backgroundColor: theme.background },
         }}
       >
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen 
-          name="read/[passage]" 
-          options={{ 
+        <Stack.Screen
+          name="read/[passage]"
+          options={{
             headerShown: true,
             headerStyle: { backgroundColor: '#1E3A5F' },
             headerTintColor: '#FFFFFF',
             headerTitle: 'Scripture',
-          }} 
+          }}
         />
       </Stack>
     </>

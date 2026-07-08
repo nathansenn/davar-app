@@ -4,7 +4,7 @@
  */
 
 import { useColorScheme } from 'react-native';
-import { create } from 'zustand';
+import { useSettingsStore } from '../stores/settingsStore';
 
 // ===========================================
 // DESIGN TOKENS
@@ -255,27 +255,19 @@ export const darkTheme: ThemeColors = {
 };
 
 // ===========================================
-// THEME STORE
-// ===========================================
-
-interface ThemeState {
-  mode: 'light' | 'dark' | 'system';
-  setMode: (mode: 'light' | 'dark' | 'system') => void;
-}
-
-export const useThemeStore = create<ThemeState>((set) => ({
-  mode: 'system',
-  setMode: (mode) => set({ mode }),
-}));
-
-// ===========================================
 // THEME HOOK
 // ===========================================
+//
+// Single source of truth: the theme mode lives in `useSettingsStore`
+// (persisted, and controlled by the Settings screen). Previously this file
+// defined a separate `useThemeStore` that nothing ever wrote to, which made
+// the Settings "Theme" picker a no-op. Reading settingsStore here means the
+// user's Light/Dark/System choice actually drives every themed surface.
 
 export function useTheme(): { theme: ThemeColors; isDark: boolean; mode: 'light' | 'dark' | 'system' } {
   const systemColorScheme = useColorScheme();
-  const { mode } = useThemeStore();
-  
+  const mode = useSettingsStore((state) => state.theme);
+
   let isDark: boolean;
   if (mode === 'system') {
     isDark = systemColorScheme === 'dark';
