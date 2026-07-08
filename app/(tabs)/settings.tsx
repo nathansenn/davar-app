@@ -11,6 +11,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore, useSettingsStore, useReadingStore } from '../../src/stores';
 import { syncService } from '../../src/services/syncService';
+import { scheduleDailyReminder, cancelDailyReminder } from '../../src/services/notificationService';
+import { formatTimeLabel, nextPreset } from '../../src/utils/reminderTime';
 import { useTheme } from '../../src/lib/theme';
 import type { Translation } from '../../src/types/ui';
 
@@ -48,6 +50,7 @@ export default function SettingsScreen() {
     theme: themeMode, setTheme,
     fontSize, setFontSize,
     notificationsEnabled, setNotificationsEnabled,
+    dailyReminderTime, setDailyReminderTime,
     defaultTranslation, setDefaultTranslation,
     showVerseNumbers, setShowVerseNumbers,
     showOriginalLanguage, setShowOriginalLanguage,
@@ -127,6 +130,33 @@ export default function SettingsScreen() {
 
   const cycle = <T,>(options: T[], current: T): T =>
     options[(options.indexOf(current) + 1) % options.length];
+
+  const handleNotificationsToggle = useCallback(
+    async (value: boolean) => {
+      if (value) {
+        const ok = await scheduleDailyReminder(dailyReminderTime);
+        if (ok) {
+          setNotificationsEnabled(true);
+        } else {
+          setNotificationsEnabled(false);
+          Alert.alert(
+            'Notifications Disabled',
+            'Please enable notifications for Davar in your device settings to receive daily reminders.'
+          );
+        }
+      } else {
+        await cancelDailyReminder();
+        setNotificationsEnabled(false);
+      }
+    },
+    [dailyReminderTime, setNotificationsEnabled]
+  );
+
+  const handleChangeReminderTime = useCallback(() => {
+    const next = nextPreset(dailyReminderTime);
+    setDailyReminderTime(next);
+    if (notificationsEnabled) scheduleDailyReminder(next);
+  }, [dailyReminderTime, notificationsEnabled, setDailyReminderTime]);
 
   const fontSizeLabel = { small: 'Small', medium: 'Medium', large: 'Large', xlarge: 'Extra Large' }[
     fontSize
@@ -216,8 +246,19 @@ export default function SettingsScreen() {
           label: 'Daily Reminders',
           isSwitch: true,
           switchValue: notificationsEnabled,
-          onToggle: setNotificationsEnabled,
+          onToggle: handleNotificationsToggle,
         },
+        ...(notificationsEnabled
+          ? [
+              {
+                icon: 'time-outline' as keyof typeof Ionicons.glyphMap,
+                label: 'Reminder Time',
+                value: formatTimeLabel(dailyReminderTime),
+                accessibilityHint: 'Cycles the daily reminder time',
+                onPress: handleChangeReminderTime,
+              },
+            ]
+          : []),
       ],
     },
     {

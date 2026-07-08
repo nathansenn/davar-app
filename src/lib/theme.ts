@@ -195,7 +195,7 @@ export const lightTheme: ThemeColors = {
   info: '#3B82F6',
   
   // Specific UI
-  verseNumber: '#C9A227',
+  verseNumber: '#8A6A1F', // darker gold: ~4.5:1 on white (was #C9A227 ~2.4:1)
   cardBackground: '#FFFFFF',
   inputBackground: '#FFFFFF',
   inputBorder: '#E8E8E6',

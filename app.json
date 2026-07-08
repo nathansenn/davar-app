@@ -20,8 +20,7 @@
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "CFBundleDisplayName": "Davar",
-        "NSMicrophoneUsageDescription": "Davar uses the microphone for audio Bible playback features."
+        "CFBundleDisplayName": "Davar"
       },
       "config": {
         "usesNonExemptEncryption": false
@@ -47,7 +46,8 @@
       "expo-router",
       "expo-asset",
       "expo-sqlite",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
