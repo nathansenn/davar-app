@@ -155,6 +155,8 @@ export function AudioControls({
           <TouchableOpacity
             style={[styles.speedButton, { backgroundColor: theme.surfaceSecondary }]}
             onPress={cyclePlaybackRate}
+            accessibilityRole="button"
+            accessibilityLabel={`Playback speed ${playbackRate}x. Tap to change.`}
           >
             <Text style={[styles.speedText, { color: theme.text }]}>
               {playbackRate}x
@@ -166,6 +168,8 @@ export function AudioControls({
             style={styles.controlButton}
             onPress={handlePrevious}
             disabled={audioState.currentVerse <= 1}
+            accessibilityRole="button"
+            accessibilityLabel="Previous verse"
           >
             <Ionicons 
               name="play-skip-back" 
@@ -178,6 +182,8 @@ export function AudioControls({
           <TouchableOpacity
             style={[styles.playButton, { backgroundColor: theme.primary }]}
             onPress={handlePlayPause}
+            accessibilityRole="button"
+            accessibilityLabel={audioState.isPlaying ? 'Pause' : 'Play'}
           >
             <Ionicons 
               name={audioState.isPlaying ? "pause" : "play"} 
@@ -191,6 +197,8 @@ export function AudioControls({
             style={styles.controlButton}
             onPress={handleNext}
             disabled={audioState.currentVerse >= audioState.totalVerses}
+            accessibilityRole="button"
+            accessibilityLabel="Next verse"
           >
             <Ionicons 
               name="play-skip-forward" 
@@ -203,13 +211,21 @@ export function AudioControls({
           <TouchableOpacity
             style={styles.controlButton}
             onPress={handleStop}
+            accessibilityRole="button"
+            accessibilityLabel="Stop playback"
           >
             <Ionicons name="stop" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
 
         {/* Close Button */}
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={handleClose}
+          accessibilityRole="button"
+          accessibilityLabel="Close audio controls"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Ionicons name="close" size={24} color={theme.textMuted} />
         </TouchableOpacity>
       </View>

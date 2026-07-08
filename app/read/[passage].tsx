@@ -302,6 +302,19 @@ export default function PassageScreen() {
   const toggleInterlinear = useCallback(() => {
     setShowInterlinear(prev => !prev);
   }, []);
+
+  // Chapter-level bookmark (header button). Uses verse 1 as the chapter anchor.
+  const chapterBookmarked = parsedPassage
+    ? isBookmarked(parsedPassage.bookId, parsedPassage.chapter, 1)
+    : false;
+  const toggleChapterBookmark = useCallback(() => {
+    if (!parsedPassage) return;
+    if (isBookmarked(parsedPassage.bookId, parsedPassage.chapter, 1)) {
+      removeBookmarkByRef(parsedPassage.bookId, parsedPassage.chapter, 1);
+    } else {
+      addBookmark(parsedPassage.bookId, parsedPassage.chapter, 1);
+    }
+  }, [parsedPassage, isBookmarked, addBookmark, removeBookmarkByRef]);
   
   // Mark complete
   const handleMarkComplete = useCallback(() => {
@@ -467,38 +480,62 @@ export default function PassageScreen() {
               {/* Interlinear Toggle */}
               <TouchableOpacity
                 onPress={toggleInterlinear}
+                accessibilityRole="button"
+                accessibilityState={{ selected: showInterlinear }}
+                accessibilityLabel={`${showInterlinear ? 'Hide' : 'Show'} ${
+                  originalLanguage === 'hebrew' ? 'Hebrew' : 'Greek'
+                } interlinear`}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 className={`p-2 rounded-lg ${showInterlinear ? 'bg-white/20' : ''}`}
               >
                 <Text className="text-white text-xs font-bold">
                   {originalLanguage === 'hebrew' ? 'עב' : 'ελ'}
                 </Text>
               </TouchableOpacity>
-              
+
               {/* Translation Badge */}
               <TouchableOpacity
                 onPress={handleTranslationChange}
+                accessibilityRole="button"
+                accessibilityLabel={`Translation: ${translation}. Tap to change.`}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 className="bg-white/20 px-2 py-1 rounded"
               >
                 <Text className="text-white text-xs font-semibold">
                   {translation}
                 </Text>
               </TouchableOpacity>
-              
+
               {/* Audio Button */}
               <TouchableOpacity
                 onPress={() => setShowAudioControls(!showAudioControls)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: showAudioControls }}
+                accessibilityLabel={showAudioControls ? 'Hide audio controls' : 'Listen to this chapter'}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 className={`p-2 rounded-lg ${showAudioControls ? 'bg-white/20' : ''}`}
               >
-                <Ionicons 
-                  name={showAudioControls ? "volume-high" : "volume-medium-outline"} 
-                  size={22} 
-                  color="#FFFFFF" 
+                <Ionicons
+                  name={showAudioControls ? 'volume-high' : 'volume-medium-outline'}
+                  size={22}
+                  color="#FFFFFF"
                 />
               </TouchableOpacity>
-              
-              {/* Bookmark */}
-              <TouchableOpacity>
-                <Ionicons name="bookmark-outline" size={22} color="#FFFFFF" />
+
+              {/* Bookmark chapter */}
+              <TouchableOpacity
+                onPress={toggleChapterBookmark}
+                accessibilityRole="button"
+                accessibilityState={{ selected: chapterBookmarked }}
+                accessibilityLabel={chapterBookmarked ? 'Remove chapter bookmark' : 'Bookmark this chapter'}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                className="p-2 rounded-lg"
+              >
+                <Ionicons
+                  name={chapterBookmarked ? 'bookmark' : 'bookmark-outline'}
+                  size={22}
+                  color="#FFFFFF"
+                />
               </TouchableOpacity>
             </View>
           ),
@@ -530,6 +567,8 @@ export default function PassageScreen() {
             {/* Prev/Next Navigation */}
             <TouchableOpacity
               onPress={handlePreviousChapter}
+              accessibilityRole="button"
+              accessibilityLabel="Previous chapter"
               style={passageStyles.navButton}
             >
               <Ionicons name="chevron-back" size={20} color={theme.primary} />
@@ -547,6 +586,8 @@ export default function PassageScreen() {
             ) : (
               <TouchableOpacity
                 onPress={handleMarkComplete}
+                accessibilityRole="button"
+                accessibilityLabel="Mark this reading complete"
                 style={[passageStyles.markCompleteBtn, { backgroundColor: theme.primary + '15' }]}
               >
                 <Ionicons name="checkmark-circle-outline" size={20} color={theme.primary} />
@@ -559,6 +600,8 @@ export default function PassageScreen() {
             {/* Next Navigation */}
             <TouchableOpacity
               onPress={handleNextChapter}
+              accessibilityRole="button"
+              accessibilityLabel="Next chapter"
               style={passageStyles.navButton}
             >
               <Text style={[passageStyles.navText, { color: theme.primary }]}>Next</Text>
