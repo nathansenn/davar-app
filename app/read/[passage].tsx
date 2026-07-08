@@ -116,7 +116,7 @@ function parsePassageSlug(slug: string): ParsedPassage | null {
 }
 
 export default function PassageScreen() {
-  const { passage } = useLocalSearchParams<{ passage: string }>();
+  const { passage, planDay } = useLocalSearchParams<{ passage: string; planDay?: string }>();
   const router = useRouter();
   const { theme, isDark } = useTheme();
   
@@ -128,7 +128,7 @@ export default function PassageScreen() {
     showVerseNumbers,
   } = useSettingsStore();
   
-  const { markTodayComplete } = useReadingStore();
+  const { markTodayComplete, completePlanDay } = useReadingStore();
   
   // State
   const [isLoading, setIsLoading] = useState(true);
@@ -305,11 +305,17 @@ export default function PassageScreen() {
   
   // Mark complete
   const handleMarkComplete = useCallback(() => {
-    if (parsedPassage) {
-      markTodayComplete([`${bookName} ${parsedPassage.chapter}`]);
-      setReadingComplete(true);
+    if (!parsedPassage) return;
+    const label = `${bookName} ${parsedPassage.chapter}`;
+    const dayNum = planDay ? parseInt(planDay, 10) : NaN;
+    if (!Number.isNaN(dayNum)) {
+      // Completing today's plan reading advances the plan day + streak.
+      completePlanDay(dayNum, [label]);
+    } else {
+      markTodayComplete([label]);
     }
-  }, [parsedPassage, bookName, markTodayComplete]);
+    setReadingComplete(true);
+  }, [parsedPassage, bookName, planDay, markTodayComplete, completePlanDay]);
   
   // Translation picker
   const handleTranslationChange = useCallback(() => {

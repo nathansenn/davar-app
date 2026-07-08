@@ -1,25 +1,20 @@
-import { useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore, useReadingStore } from '../../src/stores';
-
-const { width } = Dimensions.get('window');
+import { useTheme } from '../../src/lib/theme';
+import { getPlanDay, formatPassages, passageRoute, estimateMinutes } from '../../src/services/planCatalog';
+import { getVerseOfDay } from '../../src/utils/verseOfDay';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { theme } = useTheme();
   const { user } = useAuthStore();
-  const { streak, todayCompleted, todayPassages, currentPlan, updateStreak } =
-    useReadingStore();
+  const { streak, todayCompleted, currentPlan, completedDays, updateStreak } = useReadingStore();
 
   useEffect(() => {
     updateStreak();
@@ -34,24 +29,24 @@ export default function HomeScreen() {
 
   const firstName = user?.name?.split(' ')[0] || 'Friend';
 
-  // Demo passage for today
-  const todayReading = {
-    title: 'Psalm 23',
-    subtitle: 'The Lord is my Shepherd',
-    verses: 6,
-    estimatedTime: '3 min',
-  };
+  const todayDay = currentPlan ? getPlanDay(currentPlan.id, currentPlan.currentDay) : null;
+  const todayPassagesText = todayDay ? formatPassages(todayDay.passages) : null;
+  const estMinutes = todayDay ? estimateMinutes(todayDay.passages) : 0;
+  const startRoute =
+    todayDay && currentPlan
+      ? `${passageRoute(todayDay.passages[0])}?planDay=${currentPlan.currentDay}`
+      : null;
 
   const progressPercent = currentPlan
-    ? Math.round(
-        (currentPlan.currentDay / currentPlan.durationDays) * 100
-      )
+    ? Math.round((currentPlan.currentDay / currentPlan.durationDays) * 100)
     : 0;
+
+  const votd = useMemo(() => getVerseOfDay(), []);
 
   return (
     <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 100 }}
+      style={{ flex: 1, backgroundColor: theme.background }}
+      contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
       showsVerticalScrollIndicator={false}
     >
       {/* Header with Gradient */}
@@ -65,137 +60,161 @@ export default function HomeScreen() {
           borderBottomRightRadius: 32,
         }}
       >
-        {/* Greeting */}
-        <View className="mb-6">
-          <Text className="text-white/80 text-lg">{getGreeting()},</Text>
-          <Text className="text-white text-3xl font-bold">{firstName}</Text>
+        <View style={{ marginBottom: 24 }}>
+          <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18 }}>{getGreeting()},</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: 'bold' }}>{firstName}</Text>
         </View>
 
         {/* Streak Card */}
-        <View className="bg-white/15 rounded-2xl p-5 flex-row items-center">
-          <View className="bg-secondary rounded-full p-3 mr-4">
-            <Text className="text-2xl">🔥</Text>
+        <View
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.15)',
+            borderRadius: 16,
+            padding: 20,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <View style={{ backgroundColor: theme.secondary, borderRadius: 999, padding: 12, marginRight: 16 }}>
+            <Text style={{ fontSize: 22 }}>🔥</Text>
           </View>
-          <View className="flex-1">
-            <Text className="text-white text-2xl font-bold">
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 'bold' }}>
               {streak} Day{streak !== 1 ? 's' : ''} Streak
             </Text>
-            <Text className="text-white/70">
+            <Text style={{ color: 'rgba(255,255,255,0.85)' }}>
               {streak === 0
                 ? 'Start your streak today!'
                 : todayCompleted
                 ? "You've read today!"
-                : 'Keep going - read today!'}
+                : 'Keep going — read today!'}
             </Text>
           </View>
-          {todayCompleted && (
-            <Ionicons name="checkmark-circle" size={28} color="#22C55E" />
-          )}
+          {todayCompleted && <Ionicons name="checkmark-circle" size={28} color={theme.success} />}
         </View>
       </LinearGradient>
 
-      <View className="px-6 -mt-4">
+      <View style={{ paddingHorizontal: 24, marginTop: -16 }}>
         {/* Today's Reading Card */}
-        <TouchableOpacity
-          onPress={() => router.push('/read/psalm-23' as any)}
-          activeOpacity={0.9}
-          className="bg-white rounded-2xl p-6 shadow-lg shadow-black/10 mb-6"
+        <View
+          style={{
+            backgroundColor: theme.surface,
+            borderRadius: 16,
+            padding: 24,
+            marginBottom: 24,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            elevation: 3,
+          }}
         >
-          <View className="flex-row justify-between items-start mb-4">
-            <View>
-              <Text className="text-muted text-sm uppercase tracking-wider mb-1">
-                Today's Reading
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: theme.textMuted, fontSize: 13, letterSpacing: 1, marginBottom: 4 }}>
+                {currentPlan ? `TODAY · DAY ${currentPlan.currentDay}` : "TODAY'S READING"}
               </Text>
-              <Text className="text-text text-2xl font-bold">
-                {todayReading.title}
+              <Text style={{ color: theme.text, fontSize: 22, fontWeight: 'bold' }}>
+                {todayPassagesText || 'No active plan'}
               </Text>
-              <Text className="text-muted mt-1">{todayReading.subtitle}</Text>
+              {!currentPlan && (
+                <Text style={{ color: theme.textMuted, marginTop: 4 }}>
+                  Choose a reading plan to get started
+                </Text>
+              )}
             </View>
-            <View className="bg-secondary/20 rounded-full px-3 py-1">
-              <Text className="text-secondary font-semibold">
-                {todayReading.estimatedTime}
-              </Text>
-            </View>
+            {estMinutes > 0 && (
+              <View style={{ backgroundColor: theme.secondary + '33', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4, marginLeft: 8 }}>
+                <Text style={{ color: theme.secondaryText, fontWeight: '600' }}>~{estMinutes} min</Text>
+              </View>
+            )}
           </View>
 
-          {/* Progress Bar */}
           {currentPlan && (
-            <View className="mb-5">
-              <View className="flex-row justify-between mb-2">
-                <Text className="text-muted text-sm">Plan Progress</Text>
-                <Text className="text-primary font-medium">
-                  {progressPercent}%
-                </Text>
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text style={{ color: theme.textMuted, fontSize: 13 }}>Plan Progress</Text>
+                <Text style={{ color: theme.primary, fontWeight: '500' }}>{progressPercent}%</Text>
               </View>
-              <View className="bg-gray-200 rounded-full h-2">
-                <View
-                  className="bg-primary rounded-full h-2"
-                  style={{ width: `${progressPercent}%` }}
-                />
+              <View style={{ backgroundColor: theme.surfaceSecondary, borderRadius: 999, height: 8 }}>
+                <View style={{ backgroundColor: theme.primary, borderRadius: 999, height: 8, width: `${progressPercent}%` }} />
               </View>
             </View>
           )}
 
-          {/* Start Reading Button */}
           <TouchableOpacity
-            onPress={() => router.push('/read/psalm-23' as any)}
-            className="bg-primary rounded-xl py-4 items-center flex-row justify-center"
-            activeOpacity={0.8}
+            onPress={() => router.push((startRoute ?? '/(tabs)/plans') as any)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              startRoute ? (todayCompleted ? 'Continue reading' : 'Start reading') : 'Browse reading plans'
+            }
+            style={{
+              backgroundColor: theme.primary,
+              borderRadius: 12,
+              paddingVertical: 16,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}
+            activeOpacity={0.85}
           >
-            <Ionicons name="book-outline" size={20} color="#FFFFFF" />
-            <Text className="text-white font-semibold text-lg ml-2">
-              {todayCompleted ? 'Continue Reading' : 'Start Reading'}
+            <Ionicons name={startRoute ? 'book-outline' : 'calendar-outline'} size={20} color="#FFFFFF" />
+            <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 16, marginLeft: 8 }}>
+              {startRoute ? (todayCompleted ? 'Continue Reading' : 'Start Reading') : 'Browse Plans'}
             </Text>
           </TouchableOpacity>
-        </TouchableOpacity>
+        </View>
 
         {/* Quick Stats */}
-        <View className="flex-row gap-4 mb-6">
-          <View className="flex-1 bg-white rounded-2xl p-5 items-center">
-            <Ionicons name="flame" size={28} color="#C9A227" />
-            <Text className="text-2xl font-bold text-text mt-2">{streak}</Text>
-            <Text className="text-muted text-sm">Current Streak</Text>
+        <View style={{ flexDirection: 'row', gap: 16, marginBottom: 24 }}>
+          <View style={{ flex: 1, backgroundColor: theme.surface, borderRadius: 16, padding: 20, alignItems: 'center' }}>
+            <Ionicons name="flame" size={28} color={theme.secondary} />
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: theme.text, marginTop: 8 }}>{streak}</Text>
+            <Text style={{ color: theme.textMuted, fontSize: 13 }}>Current Streak</Text>
           </View>
-          <View className="flex-1 bg-white rounded-2xl p-5 items-center">
-            <Ionicons name="book" size={28} color="#1E3A5F" />
-            <Text className="text-2xl font-bold text-text mt-2">
-              {currentPlan?.currentDay || 0}
+          <View style={{ flex: 1, backgroundColor: theme.surface, borderRadius: 16, padding: 20, alignItems: 'center' }}>
+            <Ionicons name="checkmark-done" size={28} color={theme.primary} />
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: theme.text, marginTop: 8 }}>
+              {completedDays.length}
             </Text>
-            <Text className="text-muted text-sm">Days Complete</Text>
+            <Text style={{ color: theme.textMuted, fontSize: 13 }}>Days Complete</Text>
           </View>
         </View>
 
         {/* Quick Actions */}
-        <Text className="text-text font-bold text-lg mb-4">Quick Actions</Text>
-        <View className="flex-row gap-4">
+        <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>Quick Actions</Text>
+        <View style={{ flexDirection: 'row', gap: 16 }}>
           <TouchableOpacity
             onPress={() => router.push('/(tabs)/plans')}
-            className="flex-1 bg-white rounded-2xl p-5 items-center"
-            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Browse reading plans"
+            style={{ flex: 1, backgroundColor: theme.surface, borderRadius: 16, padding: 20, alignItems: 'center' }}
+            activeOpacity={0.85}
           >
-            <Ionicons name="calendar-outline" size={28} color="#1E3A5F" />
-            <Text className="text-text font-medium mt-2">Browse Plans</Text>
+            <Ionicons name="calendar-outline" size={28} color={theme.primary} />
+            <Text style={{ color: theme.text, fontWeight: '500', marginTop: 8 }}>Browse Plans</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => router.push('/(tabs)/read')}
-            className="flex-1 bg-white rounded-2xl p-5 items-center"
-            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Find a passage"
+            style={{ flex: 1, backgroundColor: theme.surface, borderRadius: 16, padding: 20, alignItems: 'center' }}
+            activeOpacity={0.85}
           >
-            <Ionicons name="search-outline" size={28} color="#1E3A5F" />
-            <Text className="text-text font-medium mt-2">Find Passage</Text>
+            <Ionicons name="search-outline" size={28} color={theme.primary} />
+            <Text style={{ color: theme.text, fontWeight: '500', marginTop: 8 }}>Find Passage</Text>
           </TouchableOpacity>
         </View>
 
         {/* Verse of the Day */}
-        <View className="bg-primary/5 rounded-2xl p-6 mt-6">
-          <Text className="text-muted text-sm uppercase tracking-wider mb-2">
-            Verse of the Day
+        <View style={{ backgroundColor: theme.primary + '0D', borderRadius: 16, padding: 24, marginTop: 24 }}>
+          <Text style={{ color: theme.textMuted, fontSize: 13, letterSpacing: 1, marginBottom: 8 }}>
+            VERSE OF THE DAY
           </Text>
-          <Text className="text-text text-lg leading-7 font-serif italic">
-            "The Lord is my shepherd; I shall not want. He makes me lie down in
-            green pastures. He leads me beside still waters."
+          <Text style={{ color: theme.text, fontSize: 18, lineHeight: 28, fontStyle: 'italic' }}>
+            “{votd.text}”
           </Text>
-          <Text className="text-primary font-medium mt-3">— Psalm 23:1-2</Text>
+          <Text style={{ color: theme.primary, fontWeight: '500', marginTop: 12 }}>— {votd.reference}</Text>
         </View>
       </View>
     </ScrollView>

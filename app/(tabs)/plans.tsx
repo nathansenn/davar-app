@@ -1,254 +1,182 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { useMemo } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useReadingStore } from '../../src/stores';
+import { useTheme } from '../../src/lib/theme';
+import {
+  getPlans,
+  getPlan,
+  getPlanDay,
+  formatPassages,
+  passageRoute,
+} from '../../src/services/planCatalog';
 
-interface Plan {
-  id: string;
-  name: string;
-  description: string;
-  durationDays: number;
-  category: string;
-  icon: keyof typeof Ionicons.glyphMap;
-}
-
-const READING_PLANS: Plan[] = [
-  {
-    id: 'bible-in-year',
-    name: 'Bible in a Year',
-    description: 'Read through the entire Bible in 365 days',
-    durationDays: 365,
-    category: 'Complete Bible',
-    icon: 'book',
-  },
-  {
-    id: 'gospels-30',
-    name: 'Gospels in 30 Days',
-    description: 'Journey through Matthew, Mark, Luke & John',
-    durationDays: 30,
-    category: 'New Testament',
-    icon: 'heart',
-  },
-  {
-    id: 'psalms-30',
-    name: 'Psalms in 30 Days',
-    description: 'Explore all 150 Psalms in one month',
-    durationDays: 30,
-    category: 'Old Testament',
-    icon: 'musical-notes',
-  },
-  {
-    id: 'proverbs-31',
-    name: 'Proverbs in 31 Days',
-    description: 'One chapter of wisdom each day',
-    durationDays: 31,
-    category: 'Wisdom Literature',
-    icon: 'bulb',
-  },
-  {
-    id: 'new-testament-90',
-    name: 'New Testament in 90 Days',
-    description: 'Complete the New Testament in 3 months',
-    durationDays: 90,
-    category: 'New Testament',
-    icon: 'document-text',
-  },
-  {
-    id: 'genesis-exodus',
-    name: 'Genesis & Exodus',
-    description: 'The story of creation and redemption',
-    durationDays: 45,
-    category: 'Old Testament',
-    icon: 'globe',
-  },
-];
+const PLAN_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  'bible-1-year': 'book',
+  'new-testament-90': 'heart',
+  'psalms-proverbs': 'musical-notes',
+};
 
 export default function PlansScreen() {
   const router = useRouter();
-  const { currentPlan, setCurrentPlan, completedDays } = useReadingStore();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { currentPlan, setCurrentPlan } = useReadingStore();
 
-  const categories = [...new Set(READING_PLANS.map((p) => p.category))];
+  const plans = useMemo(() => getPlans(), []);
 
-  const filteredPlans = selectedCategory
-    ? READING_PLANS.filter((p) => p.category === selectedCategory)
-    : READING_PLANS;
+  const continueReading = () => {
+    if (!currentPlan) return;
+    const day = getPlanDay(currentPlan.id, currentPlan.currentDay);
+    if (day && day.passages.length > 0) {
+      router.push(`${passageRoute(day.passages[0])}?planDay=${currentPlan.currentDay}` as any);
+    } else {
+      router.push('/(tabs)');
+    }
+  };
 
-  const startPlan = (plan: Plan) => {
+  const startPlan = (planId: string) => {
+    const plan = getPlan(planId);
+    if (!plan) return;
     Alert.alert(
-      'Start Reading Plan',
-      `Start "${plan.name}"?\n\nThis ${plan.durationDays}-day plan will become your active reading plan.`,
+      `Start "${plan.name}"?`,
+      `This ${plan.durationDays}-day plan will become your active reading plan.` +
+        (currentPlan ? '\n\nThis replaces your current active plan.' : ''),
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Start Plan',
-          onPress: () => {
+          onPress: () =>
             setCurrentPlan({
               id: plan.id,
               name: plan.name,
               description: plan.description,
               durationDays: plan.durationDays,
               currentDay: 1,
-            });
-            Alert.alert('Plan Started! 🎉', `Day 1 of ${plan.name} begins now.`);
-          },
+            }),
         },
       ]
     );
   };
 
   return (
-    <View className="flex-1 bg-background">
-      {/* Current Plan Card */}
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      {/* Active Plan Banner */}
       {currentPlan && (
-        <View className="px-6 py-4 bg-primary">
-          <Text className="text-white/80 text-sm uppercase tracking-wider mb-1">
-            Active Plan
+        <View style={{ paddingHorizontal: 24, paddingVertical: 16, backgroundColor: theme.primary }}>
+          <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, letterSpacing: 1, marginBottom: 4 }}>
+            ACTIVE PLAN
           </Text>
-          <Text className="text-white text-xl font-bold">
-            {currentPlan.name}
-          </Text>
-          <View className="flex-row items-center mt-3">
-            <View className="flex-1 bg-white/20 rounded-full h-2 mr-4">
+          <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' }}>{currentPlan.name}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+            <View style={{ flex: 1, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)', marginRight: 16 }}>
               <View
-                className="bg-secondary rounded-full h-2"
                 style={{
-                  width: `${(currentPlan.currentDay / currentPlan.durationDays) * 100}%`,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: theme.secondary,
+                  width: `${Math.min(100, (currentPlan.currentDay / currentPlan.durationDays) * 100)}%`,
                 }}
               />
             </View>
-            <Text className="text-white font-medium">
+            <Text style={{ color: '#FFFFFF', fontWeight: '500' }}>
               Day {currentPlan.currentDay}/{currentPlan.durationDays}
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => router.push('/(tabs)')}
-            className="bg-white rounded-xl py-3 mt-4 items-center"
-            activeOpacity={0.8}
+            onPress={continueReading}
+            accessibilityRole="button"
+            accessibilityLabel="Continue today's reading"
+            style={{ backgroundColor: '#FFFFFF', borderRadius: 12, paddingVertical: 12, marginTop: 16, alignItems: 'center' }}
+            activeOpacity={0.85}
           >
-            <Text className="text-primary font-semibold">
-              Continue Today's Reading
-            </Text>
+            <Text style={{ color: theme.primary, fontWeight: '600' }}>Continue Today's Reading</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Category Filter */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="px-6 py-4 border-b border-border bg-white"
-        contentContainerStyle={{ gap: 8 }}
-      >
-        <TouchableOpacity
-          onPress={() => setSelectedCategory(null)}
-          className={`px-4 py-2 rounded-full ${
-            !selectedCategory ? 'bg-primary' : 'bg-gray-100'
-          }`}
-        >
-          <Text
-            className={`font-medium ${
-              !selectedCategory ? 'text-white' : 'text-muted'
-            }`}
-          >
-            All Plans
-          </Text>
-        </TouchableOpacity>
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category}
-            onPress={() => setSelectedCategory(category)}
-            className={`px-4 py-2 rounded-full ${
-              selectedCategory === category ? 'bg-primary' : 'bg-gray-100'
-            }`}
-          >
-            <Text
-              className={`font-medium ${
-                selectedCategory === category ? 'text-white' : 'text-muted'
-              }`}
-            >
-              {category}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Plans List */}
-      <ScrollView
-        className="flex-1 px-6 py-4"
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 100 + insets.bottom }}
       >
-        <Text className="text-text font-bold text-lg mb-4">
-          {selectedCategory || 'All'} Reading Plans
+        <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>
+          Reading Plans
         </Text>
 
-        {filteredPlans.map((plan) => {
+        {plans.map((plan) => {
           const isActive = currentPlan?.id === plan.id;
-
+          const day1 = getPlanDay(plan.id, 1);
           return (
-            <TouchableOpacity
+            <View
               key={plan.id}
-              onPress={() => !isActive && startPlan(plan)}
-              className={`bg-white rounded-2xl p-5 mb-4 ${
-                isActive ? 'border-2 border-primary' : ''
-              }`}
-              activeOpacity={isActive ? 1 : 0.8}
+              style={{
+                backgroundColor: theme.surface,
+                borderRadius: 16,
+                padding: 20,
+                marginBottom: 16,
+                borderWidth: isActive ? 2 : 0,
+                borderColor: theme.primary,
+              }}
             >
-              <View className="flex-row items-start">
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                 <View
-                  className={`rounded-xl p-3 mr-4 ${
-                    isActive ? 'bg-primary' : 'bg-primary/10'
-                  }`}
+                  style={{
+                    borderRadius: 12,
+                    padding: 12,
+                    marginRight: 16,
+                    backgroundColor: isActive ? theme.primary : theme.primary + '1A',
+                  }}
                 >
                   <Ionicons
-                    name={plan.icon}
+                    name={PLAN_ICONS[plan.id] || 'book'}
                     size={24}
-                    color={isActive ? '#FFFFFF' : '#1E3A5F'}
+                    color={isActive ? '#FFFFFF' : theme.primary}
                   />
                 </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center">
-                    <Text className="text-text font-bold text-lg flex-1">
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: 18, flex: 1 }}>
                       {plan.name}
                     </Text>
                     {isActive && (
-                      <View className="bg-green-100 px-2 py-1 rounded-full">
-                        <Text className="text-green-700 text-xs font-medium">
-                          Active
-                        </Text>
+                      <View style={{ backgroundColor: theme.success + '22', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}>
+                        <Text style={{ color: theme.success, fontSize: 12, fontWeight: '600' }}>Active</Text>
                       </View>
                     )}
                   </View>
-                  <Text className="text-muted mt-1">{plan.description}</Text>
-                  <View className="flex-row items-center mt-3">
-                    <Ionicons name="calendar-outline" size={16} color="#9CA3AF" />
-                    <Text className="text-muted text-sm ml-1">
+                  <Text style={{ color: theme.textMuted, marginTop: 4 }}>{plan.description}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                    <Ionicons name="calendar-outline" size={16} color={theme.textMuted} />
+                    <Text style={{ color: theme.textMuted, fontSize: 13, marginLeft: 4 }}>
                       {plan.durationDays} days
                     </Text>
-                    <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" />
-                    <Text className="text-muted text-sm">{plan.category}</Text>
+                    {day1 && (
+                      <>
+                        <View style={{ width: 3, height: 3, borderRadius: 2, backgroundColor: theme.textMuted, marginHorizontal: 8 }} />
+                        <Text style={{ color: theme.textMuted, fontSize: 13, flex: 1 }} numberOfLines={1}>
+                          Day 1: {formatPassages(day1.passages)}
+                        </Text>
+                      </>
+                    )}
                   </View>
                 </View>
               </View>
 
               {!isActive && (
                 <TouchableOpacity
-                  onPress={() => startPlan(plan)}
-                  className="bg-primary/10 rounded-xl py-3 mt-4 items-center"
-                  activeOpacity={0.8}
+                  onPress={() => startPlan(plan.id)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Start ${plan.name}`}
+                  style={{ backgroundColor: theme.primary + '1A', borderRadius: 12, paddingVertical: 12, marginTop: 16, alignItems: 'center' }}
+                  activeOpacity={0.85}
                 >
-                  <Text className="text-primary font-semibold">Start Plan</Text>
+                  <Text style={{ color: theme.primary, fontWeight: '600' }}>Start Plan</Text>
                 </TouchableOpacity>
               )}
-            </TouchableOpacity>
+            </View>
           );
         })}
       </ScrollView>
