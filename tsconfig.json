@@ -24,6 +24,9 @@
   ],
   "exclude": [
     "node_modules",
-    "backend"
+    "backend",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

@@ -6,12 +6,13 @@ import {
   ScrollView,
   Switch,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore, useSettingsStore, useReadingStore } from '../../src/stores';
 import { syncService } from '../../src/services/syncService';
+import { useTheme } from '../../src/lib/theme';
+import type { Translation } from '../../src/types/ui';
 
 type SettingSection = {
   title: string;
@@ -27,13 +28,24 @@ type SettingItem = {
   onPress?: () => void;
   onToggle?: (value: boolean) => void;
   destructive?: boolean;
+  accessibilityHint?: string;
 };
+
+const TRANSLATION_OPTIONS: Translation[] = ['KJV', 'ASV', 'BBE', 'BSB'];
+const FONT_SIZE_OPTIONS: Array<'small' | 'medium' | 'large' | 'xlarge'> = [
+  'small',
+  'medium',
+  'large',
+  'xlarge',
+];
+const THEME_OPTIONS: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { theme, isDark } = useTheme();
   const { user, token, logout } = useAuthStore();
-  const { 
-    theme, setTheme,
+  const {
+    theme: themeMode, setTheme,
     fontSize, setFontSize,
     notificationsEnabled, setNotificationsEnabled,
     defaultTranslation, setDefaultTranslation,
@@ -43,30 +55,24 @@ export default function SettingsScreen() {
     showTransliteration, setShowTransliteration,
   } = useSettingsStore();
   const { streak, longestStreak, totalDaysRead, reset: resetReading } = useReadingStore();
-  
-  // Sync status
+
   const [syncStatus, setSyncStatus] = useState(syncService.getStatus());
-  
+
   useEffect(() => {
-    // Initialize sync service
     syncService.init();
-    
-    // Subscribe to sync status changes
     const unsubscribe = syncService.subscribe(setSyncStatus);
     return unsubscribe;
   }, []);
-  
+
   const handleSync = useCallback(async () => {
     if (!token) {
       Alert.alert('Sign In Required', 'Please sign in to sync your data across devices.');
       return;
     }
-    
     if (!syncStatus.isOnline) {
       Alert.alert('No Connection', 'You are currently offline. Your changes will sync when you are back online.');
       return;
     }
-    
     try {
       await syncService.forceSync(token);
       Alert.alert('Sync Complete', 'Your data has been synced successfully.');
@@ -74,14 +80,13 @@ export default function SettingsScreen() {
       Alert.alert('Sync Failed', 'Failed to sync your data. Please try again later.');
     }
   }, [token, syncStatus.isOnline]);
-  
+
   const formatLastSync = (timestamp: number | null): string => {
     if (!timestamp) return 'Never';
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
@@ -89,21 +94,17 @@ export default function SettingsScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            router.replace('/(auth)/login');
-          },
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
+          router.replace('/(auth)/login');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleResetProgress = () => {
@@ -124,18 +125,13 @@ export default function SettingsScreen() {
     );
   };
 
-  const fontSizeLabel = {
-    small: 'Small',
-    medium: 'Medium',
-    large: 'Large',
-    xlarge: 'Extra Large',
-  }[fontSize];
+  const cycle = <T,>(options: T[], current: T): T =>
+    options[(options.indexOf(current) + 1) % options.length];
 
-  const themeLabel = {
-    light: 'Light',
-    dark: 'Dark',
-    system: 'System',
-  }[theme];
+  const fontSizeLabel = { small: 'Small', medium: 'Medium', large: 'Large', xlarge: 'Extra Large' }[
+    fontSize
+  ];
+  const themeLabel = { light: 'Light', dark: 'Dark', system: 'System' }[themeMode];
 
   const sections: SettingSection[] = [
     {
@@ -155,26 +151,15 @@ export default function SettingsScreen() {
           icon: 'text',
           label: 'Font Size',
           value: fontSizeLabel,
-          onPress: () => {
-            const sizes: Array<'small' | 'medium' | 'large' | 'xlarge'> = ['small', 'medium', 'large', 'xlarge'];
-            const currentIndex = sizes.indexOf(fontSize);
-            const nextIndex = (currentIndex + 1) % sizes.length;
-            setFontSize(sizes[nextIndex]);
-          },
+          accessibilityHint: 'Cycles to the next font size',
+          onPress: () => setFontSize(cycle(FONT_SIZE_OPTIONS, fontSize)),
         },
         {
           icon: 'book-outline',
           label: 'Default Translation',
           value: defaultTranslation,
-          onPress: () => {
-            Alert.alert('Default Translation', 'Select your preferred translation', [
-              { text: 'KJV', onPress: () => setDefaultTranslation('KJV') },
-              { text: 'ASV', onPress: () => setDefaultTranslation('ASV') },
-              { text: 'BBE', onPress: () => setDefaultTranslation('BBE') },
-              { text: 'BSB', onPress: () => setDefaultTranslation('BSB') },
-              { text: 'Cancel', style: 'cancel' },
-            ]);
-          },
+          accessibilityHint: 'Choose your default Bible translation',
+          onPress: () => setDefaultTranslation(cycle(TRANSLATION_OPTIONS, defaultTranslation)),
         },
         {
           icon: 'list',
@@ -199,11 +184,8 @@ export default function SettingsScreen() {
           icon: 'swap-vertical',
           label: 'Original Language Position',
           value: originalLanguagePosition === 'above' ? 'Above English' : 'Below English',
-          onPress: () => {
-            setOriginalLanguagePosition(
-              originalLanguagePosition === 'above' ? 'below' : 'above'
-            );
-          },
+          onPress: () =>
+            setOriginalLanguagePosition(originalLanguagePosition === 'above' ? 'below' : 'above'),
         },
         {
           icon: 'text-outline',
@@ -218,17 +200,11 @@ export default function SettingsScreen() {
       title: 'Appearance',
       items: [
         {
-          icon: 'moon',
+          icon: isDark ? 'moon' : 'sunny',
           label: 'Theme',
           value: themeLabel,
-          onPress: () => {
-            Alert.alert('Theme', 'Choose your theme', [
-              { text: 'Light', onPress: () => setTheme('light') },
-              { text: 'Dark', onPress: () => setTheme('dark') },
-              { text: 'System', onPress: () => setTheme('system') },
-              { text: 'Cancel', style: 'cancel' },
-            ]);
-          },
+          accessibilityHint: 'Cycles between light, dark and system themes',
+          onPress: () => setTheme(cycle(THEME_OPTIONS, themeMode)),
         },
       ],
     },
@@ -250,9 +226,10 @@ export default function SettingsScreen() {
         {
           icon: syncStatus.isOnline ? 'cloud-done' : 'cloud-offline',
           label: syncStatus.isSyncing ? 'Syncing...' : 'Sync Now',
-          value: syncStatus.pendingCount > 0 
-            ? `${syncStatus.pendingCount} pending changes` 
-            : `Last synced: ${formatLastSync(syncStatus.lastSyncAt)}`,
+          value:
+            syncStatus.pendingCount > 0
+              ? `${syncStatus.pendingCount} pending changes`
+              : `Last synced: ${formatLastSync(syncStatus.lastSyncAt)}`,
           onPress: handleSync,
         },
       ],
@@ -278,80 +255,121 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-background"
+      style={{ flex: 1, backgroundColor: theme.background }}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 100 }}
     >
       {/* Stats Card */}
-      <View className="mx-6 mt-4 mb-6 bg-primary rounded-2xl p-6">
-        <Text className="text-white/80 text-sm uppercase tracking-wider mb-3">
-          Your Journey
+      <View
+        style={{
+          marginHorizontal: 24,
+          marginTop: 16,
+          marginBottom: 24,
+          backgroundColor: theme.primary,
+          borderRadius: 16,
+          padding: 24,
+        }}
+      >
+        <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, letterSpacing: 1, marginBottom: 12 }}>
+          YOUR JOURNEY
         </Text>
-        <View className="flex-row justify-between">
-          <View className="items-center">
-            <Text className="text-white text-3xl font-bold">{streak}</Text>
-            <Text className="text-white/70 text-sm">Current Streak</Text>
-          </View>
-          <View className="items-center">
-            <Text className="text-white text-3xl font-bold">{longestStreak}</Text>
-            <Text className="text-white/70 text-sm">Longest Streak</Text>
-          </View>
-          <View className="items-center">
-            <Text className="text-white text-3xl font-bold">{totalDaysRead}</Text>
-            <Text className="text-white/70 text-sm">Total Days</Text>
-          </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          {[
+            { value: streak, label: 'Current Streak' },
+            { value: longestStreak, label: 'Longest Streak' },
+            { value: totalDaysRead, label: 'Total Days' },
+          ].map((stat) => (
+            <View key={stat.label} style={{ alignItems: 'center' }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: 'bold' }}>{stat.value}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>{stat.label}</Text>
+            </View>
+          ))}
         </View>
       </View>
 
       {/* Settings Sections */}
-      {sections.map((section, sectionIndex) => (
-        <View key={sectionIndex} className="mb-6">
-          <Text className="px-6 mb-2 text-muted text-sm uppercase tracking-wider">
+      {sections.map((section) => (
+        <View key={section.title} style={{ marginBottom: 24 }}>
+          <Text
+            style={{
+              paddingHorizontal: 24,
+              marginBottom: 8,
+              color: theme.textMuted,
+              fontSize: 13,
+              letterSpacing: 1,
+              textTransform: 'uppercase',
+            }}
+          >
             {section.title}
           </Text>
-          <View className="mx-6 bg-white rounded-2xl overflow-hidden">
+          <View
+            style={{
+              marginHorizontal: 24,
+              backgroundColor: theme.surface,
+              borderRadius: 16,
+              overflow: 'hidden',
+            }}
+          >
             {section.items.map((item, itemIndex) => (
               <TouchableOpacity
-                key={itemIndex}
+                key={item.label}
                 onPress={item.onPress}
-                disabled={item.isSwitch}
-                className={`flex-row items-center px-4 py-4 ${
-                  itemIndex < section.items.length - 1 ? 'border-b border-gray-100' : ''
-                }`}
+                disabled={item.isSwitch || !item.onPress}
+                accessibilityRole={item.onPress && !item.isSwitch ? 'button' : undefined}
+                accessibilityLabel={item.value ? `${item.label}, ${item.value}` : item.label}
+                accessibilityHint={item.accessibilityHint}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 16,
+                  paddingVertical: 16,
+                  borderBottomWidth: itemIndex < section.items.length - 1 ? 1 : 0,
+                  borderBottomColor: theme.borderLight,
+                }}
                 activeOpacity={item.onPress ? 0.7 : 1}
               >
                 <View
-                  className={`w-9 h-9 rounded-full items-center justify-center mr-3 ${
-                    item.destructive ? 'bg-red-100' : 'bg-primary/10'
-                  }`}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: 12,
+                    backgroundColor: item.destructive ? theme.error + '1A' : theme.primary + '1A',
+                  }}
                 >
                   <Ionicons
                     name={item.icon}
                     size={20}
-                    color={item.destructive ? '#EF4444' : '#1E3A5F'}
+                    color={item.destructive ? theme.error : theme.primary}
                   />
                 </View>
-                <View className="flex-1">
+                <View style={{ flex: 1 }}>
                   <Text
-                    className={`text-base font-medium ${
-                      item.destructive ? 'text-red-500' : 'text-text'
-                    }`}
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '500',
+                      color: item.destructive ? theme.error : theme.text,
+                    }}
                   >
                     {item.label}
                   </Text>
                   {item.value && !item.isSwitch && (
-                    <Text className="text-muted text-sm">{item.value}</Text>
+                    <Text style={{ color: theme.textMuted, fontSize: 13, marginTop: 2 }}>
+                      {item.value}
+                    </Text>
                   )}
                 </View>
                 {item.isSwitch ? (
                   <Switch
                     value={item.switchValue}
                     onValueChange={item.onToggle}
-                    trackColor={{ false: '#E5E7EB', true: '#1E3A5F' }}
+                    trackColor={{ false: theme.border, true: theme.primary }}
                     thumbColor="#FFFFFF"
                   />
                 ) : item.onPress && !item.destructive ? (
-                  <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                  <Ionicons name="chevron-forward" size={20} color={theme.textMuted} />
                 ) : null}
               </TouchableOpacity>
             ))}
@@ -360,9 +378,11 @@ export default function SettingsScreen() {
       ))}
 
       {/* App Info */}
-      <View className="items-center py-8">
-        <Text className="text-muted text-sm">Davar v1.0.0</Text>
-        <Text className="text-muted/50 text-xs mt-1">Made with ❤️ for Scripture</Text>
+      <View style={{ alignItems: 'center', paddingVertical: 32 }}>
+        <Text style={{ color: theme.textMuted, fontSize: 13 }}>Davar v1.0.0</Text>
+        <Text style={{ color: theme.textMuted, fontSize: 11, marginTop: 4, opacity: 0.7 }}>
+          Made with ❤️ for Scripture
+        </Text>
       </View>
     </ScrollView>
   );
