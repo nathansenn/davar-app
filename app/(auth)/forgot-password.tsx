@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -10,107 +9,90 @@ import {
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../src/lib/theme';
+import { authService } from '../../src/services/authClient';
 
 export default function ForgotPasswordScreen() {
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const { theme } = useTheme();
   const router = useRouter();
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = () => {
-    if (!email) {
-      Alert.alert('Error', 'Please enter your email address');
-      return;
-    }
-
-    // Since this is offline-first, we just show a message
-    setSubmitted(true);
-  };
-
-  if (submitted) {
-    return (
-      <View className="flex-1 bg-background justify-center px-8">
-        <View className="items-center">
-          <View className="bg-green-100 rounded-full p-6 mb-6">
-            <Ionicons name="checkmark-circle" size={64} color="#22C55E" />
-          </View>
-          <Text className="text-2xl font-bold text-text mb-4 text-center">
-            Check Your Email
-          </Text>
-          <Text className="text-muted text-center mb-8 leading-6">
-            If an account exists with {email}, you'll receive password reset
-            instructions shortly.
-          </Text>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="bg-primary rounded-xl py-4 px-12"
-          >
-            <Text className="text-white font-semibold text-lg">
-              Back to Sign In
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+  const handleReset = () => {
+    Alert.alert(
+      'Reset Account',
+      'Your Davar account is stored only on this device, so there is no email reset. ' +
+        'Resetting clears your saved sign-in and lets you create a new account. ' +
+        'Your reading progress and highlights are kept.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset & Re-register',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await authService.resetAccount();
+              router.replace('/(auth)/register');
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ]
     );
-  }
+  };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-background"
+      style={{ flex: 1, backgroundColor: theme.background }}
     >
-      <View className="flex-1 justify-center px-8">
-        {/* Back Button */}
+      <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 32 }}>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="absolute top-16 left-6 p-2"
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={{ position: 'absolute', top: 64, left: 24, padding: 8 }}
         >
-          <Ionicons name="arrow-back" size={24} color="#1E3A5F" />
+          <Ionicons name="arrow-back" size={24} color={theme.primary} />
         </TouchableOpacity>
 
-        {/* Header */}
-        <View className="items-center mb-10">
-          <View className="bg-primary/10 rounded-full p-6 mb-6">
-            <Ionicons name="lock-closed" size={48} color="#1E3A5F" />
+        <View style={{ alignItems: 'center', marginBottom: 40 }}>
+          <View style={{ backgroundColor: theme.primary + '1A', borderRadius: 999, padding: 24, marginBottom: 24 }}>
+            <Ionicons name="lock-closed" size={48} color={theme.primary} />
           </View>
-          <Text className="text-2xl font-bold text-text mb-2">
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.text, marginBottom: 8 }}>
             Forgot Password?
           </Text>
-          <Text className="text-muted text-center leading-6">
-            No worries! Enter your email and we'll send you reset instructions.
+          <Text style={{ color: theme.textMuted, textAlign: 'center', lineHeight: 22 }}>
+            Davar keeps your account on this device only. There's no email reset — you can reset your
+            account and re-register. Your reading progress stays intact.
           </Text>
         </View>
 
-        {/* Form */}
-        <View>
-          <Text className="text-text font-medium mb-2 ml-1">Email</Text>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Enter your email"
-            placeholderTextColor="#9CA3AF"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            className="bg-white border border-border rounded-xl px-4 py-4 text-text text-base"
-          />
+        <TouchableOpacity
+          onPress={handleReset}
+          disabled={busy}
+          accessibilityRole="button"
+          accessibilityLabel="Reset account and re-register"
+          style={{
+            backgroundColor: theme.error,
+            borderRadius: 12,
+            paddingVertical: 16,
+            alignItems: 'center',
+            opacity: busy ? 0.7 : 1,
+          }}
+          activeOpacity={0.85}
+        >
+          <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 16 }}>Reset Account</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleSubmit}
-            className="bg-primary rounded-xl py-4 mt-6 items-center"
-            activeOpacity={0.8}
-          >
-            <Text className="text-white font-semibold text-lg">
-              Send Reset Link
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Back to Login */}
-        <View className="flex-row justify-center mt-8">
-          <Text className="text-muted">Remember your password? </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 32 }}>
+          <Text style={{ color: theme.textMuted }}>Remember your password? </Text>
           <Link href="/(auth)/login" asChild>
-            <TouchableOpacity>
-              <Text className="text-primary font-semibold">Sign In</Text>
+            <TouchableOpacity accessibilityRole="button">
+              <Text style={{ color: theme.primary, fontWeight: '600' }}>Sign In</Text>
             </TouchableOpacity>
           </Link>
         </View>

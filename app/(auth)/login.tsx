@@ -6,137 +6,176 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { useAuthStore } from '../../src/stores';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuthStore } from '../../src/stores';
+import { useTheme } from '../../src/lib/theme';
+import { isValidEmail } from '../../src/services/authService';
 
 export default function LoginScreen() {
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { login, isLoading } = useAuthStore();
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+    setError(null);
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
       return;
     }
-
+    if (!password) {
+      setError('Please enter your password');
+      return;
+    }
     try {
       await login(email, password);
       router.replace('/(tabs)');
-    } catch (error) {
-      Alert.alert('Error', 'Invalid email or password');
+    } catch (e: any) {
+      setError(e?.message || 'Unable to sign in');
     }
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-background"
+      style={{ flex: 1, backgroundColor: theme.background }}
     >
-      <View className="flex-1 justify-center px-8">
+      <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 32 }}>
         {/* Logo/Brand */}
-        <View className="items-center mb-12">
-          <Text className="text-5xl font-bold text-primary mb-2">דָּבָר</Text>
-          <Text className="text-xl text-primary tracking-widest">DAVAR</Text>
-          <Text className="text-muted mt-2 text-center">
+        <View style={{ alignItems: 'center', marginBottom: 48 }}>
+          <Text style={{ fontSize: 48, fontWeight: 'bold', color: theme.primary, marginBottom: 8 }}>
+            דָּבָר
+          </Text>
+          <Text style={{ fontSize: 20, color: theme.primary, letterSpacing: 4 }}>DAVAR</Text>
+          <Text style={{ color: theme.textMuted, marginTop: 8, textAlign: 'center' }}>
             Daily Scripture Reading
           </Text>
         </View>
 
-        {/* Form */}
-        <View className="space-y-4">
-          {/* Email Input */}
-          <View>
-            <Text className="text-text font-medium mb-2 ml-1">Email</Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Enter your email"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              className="bg-white border border-border rounded-xl px-4 py-4 text-text text-base"
-            />
-          </View>
-
-          {/* Password Input */}
-          <View className="mt-4">
-            <Text className="text-text font-medium mb-2 ml-1">Password</Text>
-            <View className="relative">
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Enter your password"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!showPassword}
-                className="bg-white border border-border rounded-xl px-4 py-4 pr-12 text-text text-base"
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-4"
-              >
-                <Ionicons
-                  name={showPassword ? 'eye-off' : 'eye'}
-                  size={22}
-                  color="#6B7280"
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Forgot Password */}
-          <Link href="/(auth)/forgot-password" asChild>
-            <TouchableOpacity className="self-end mt-2">
-              <Text className="text-primary font-medium">Forgot password?</Text>
-            </TouchableOpacity>
-          </Link>
-
-          {/* Login Button */}
-          <TouchableOpacity
-            onPress={handleLogin}
-            disabled={isLoading}
-            className="bg-primary rounded-xl py-4 mt-6 items-center"
-            activeOpacity={0.8}
+        {/* Error banner */}
+        {error && (
+          <View
+            style={{
+              backgroundColor: theme.error + '1A',
+              borderRadius: 12,
+              padding: 12,
+              marginBottom: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+            accessibilityLiveRegion="polite"
           >
-            {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-white font-semibold text-lg">Sign In</Text>
-            )}
-          </TouchableOpacity>
+            <Ionicons name="alert-circle" size={18} color={theme.error} />
+            <Text style={{ color: theme.error, marginLeft: 8, flex: 1 }}>{error}</Text>
+          </View>
+        )}
+
+        {/* Email */}
+        <View>
+          <Text style={{ color: theme.text, fontWeight: '500', marginBottom: 8, marginLeft: 4 }}>Email</Text>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            placeholderTextColor={theme.placeholder}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            accessibilityLabel="Email"
+            style={{
+              backgroundColor: theme.inputBackground,
+              borderWidth: 1,
+              borderColor: theme.inputBorder,
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+              color: theme.text,
+              fontSize: 16,
+            }}
+          />
         </View>
+
+        {/* Password */}
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ color: theme.text, fontWeight: '500', marginBottom: 8, marginLeft: 4 }}>Password</Text>
+          <View style={{ position: 'relative', justifyContent: 'center' }}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              placeholderTextColor={theme.placeholder}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              accessibilityLabel="Password"
+              style={{
+                backgroundColor: theme.inputBackground,
+                borderWidth: 1,
+                borderColor: theme.inputBorder,
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                paddingRight: 48,
+                color: theme.text,
+                fontSize: 16,
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword((s) => !s)}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={{ position: 'absolute', right: 16 }}
+            >
+              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color={theme.textMuted} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Forgot Password */}
+        <Link href="/(auth)/forgot-password" asChild>
+          <TouchableOpacity style={{ alignSelf: 'flex-end', marginTop: 12 }} accessibilityRole="button">
+            <Text style={{ color: theme.primary, fontWeight: '500' }}>Forgot password?</Text>
+          </TouchableOpacity>
+        </Link>
+
+        {/* Sign In */}
+        <TouchableOpacity
+          onPress={handleLogin}
+          disabled={isLoading}
+          accessibilityRole="button"
+          accessibilityLabel="Sign in"
+          style={{
+            backgroundColor: theme.primary,
+            borderRadius: 12,
+            paddingVertical: 16,
+            marginTop: 24,
+            alignItems: 'center',
+            opacity: isLoading ? 0.7 : 1,
+          }}
+          activeOpacity={0.85}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 16 }}>Sign In</Text>
+          )}
+        </TouchableOpacity>
 
         {/* Register Link */}
-        <View className="flex-row justify-center mt-8">
-          <Text className="text-muted">Don't have an account? </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 32 }}>
+          <Text style={{ color: theme.textMuted }}>Don't have an account? </Text>
           <Link href="/(auth)/register" asChild>
-            <TouchableOpacity>
-              <Text className="text-primary font-semibold">Create one</Text>
+            <TouchableOpacity accessibilityRole="button">
+              <Text style={{ color: theme.primary, fontWeight: '600' }}>Create one</Text>
             </TouchableOpacity>
           </Link>
         </View>
-
-        {/* Skip Auth (for testing) */}
-        <TouchableOpacity
-          onPress={() => {
-            useAuthStore.getState().setUser({
-              id: 'guest',
-              name: 'Guest',
-              email: 'guest@davar.app',
-            });
-            router.replace('/(tabs)');
-          }}
-          className="mt-8 items-center"
-        >
-          <Text className="text-muted underline">Continue as Guest</Text>
-        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );

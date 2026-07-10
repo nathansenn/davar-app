@@ -32,7 +32,8 @@ interface SyncStatus {
 }
 
 // Backend API URL - will be configured via environment
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://davar-api.railway.app';
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'https://davar-backend-production.up.railway.app';
 
 // Singleton database instance
 let db: SQLite.SQLiteDatabase | null = null;

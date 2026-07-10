@@ -99,8 +99,9 @@ export function VerseText({
   // Calculate line height based on font size
   const calculatedLineHeight = lineHeight || fontSize * 1.7;
 
-  // Text color - red for Jesus' words if enabled
-  const textColor = isRedLetter ? '#DC2626' : theme.text;
+  // Text color - red for Jesus' words if enabled. Use the themed error/red so
+  // it keeps adequate contrast in dark mode (brighter red on dark surfaces).
+  const textColor = isRedLetter ? theme.error : theme.text;
 
   // Poetry indentation
   const poetryStyle = isPoetry ? styles.poetryIndent : null;

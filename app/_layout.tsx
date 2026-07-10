@@ -27,8 +27,12 @@ function useProtectedRoute() {
 }
 
 export default function RootLayout() {
-  const { isLoading } = useAuthStore();
+  const { isLoading, initialize } = useAuthStore();
   const { theme, isDark } = useTheme();
+
+  useEffect(() => {
+    initialize();
+  }, []);
 
   useProtectedRoute();
 
