@@ -111,8 +111,23 @@ A repo-wide grep for `accessibility*` returns **2 hits total**, both in an unuse
 
 ---
 
-## Fixed in this PR
+## Remediation status
 
-- **Theme system unified.** `useTheme()` now reads the mode from `useSettingsStore` (the single, persisted source the Settings screen already writes to). The dead duplicate `useThemeStore` is removed. The root layout's `StatusBar` and background now follow `isDark`. Result: the Settings **Theme picker actually controls the app** for every themed surface (the reader, all study modals, and shared components) and the status bar renders correctly in dark mode — a previously dead control is now live.
+Verified with `npm run typecheck`, `npm test` (47 unit tests), and `npx expo export -p web` on every step.
 
-This is intentionally scoped to the one fix that is fully self-contained and verifiable. The remaining items above are laid out as an actionable roadmap rather than changed in a single sweeping commit.
+### ✅ Fixed
+- **Theme system unified & dark mode coherent.** `useTheme()` reads from `useSettingsStore` (dead `useThemeStore` removed); tab bar, headers, auth stack, root `StatusBar`/background, Settings, Read, Plans, Home, and auth screens are all theme-aware. The Theme picker now actually controls the app. (§1.1, §2.1–2.5)
+- **Real authentication.** Salted, iterated SHA-256 hashing (`authService`, unit-tested) via `expo-crypto` + `expo-secure-store`; sessions restored on startup; guest/"Skip Auth" backdoor removed; inline validation; honest forgot-password. (§1.2, §5)
+- **Plans → today's reading → progress.** Pure tested `planCatalog`; Home/Plans driven by real schedules; `completePlanDay` advances plan + streak; real verse-of-the-day; "Days Complete" fixed. (§1.5, §1.6, §1.9, §1.10)
+- **Read tab.** Real book list, working search (reference jump + book filter + full-text verse search), chapter picker. (§1.11, §3.H4)
+- **Notifications.** Real `expo-notifications` daily reminder + reminder-time control. (§1.7)
+- **Dead bookmark button** wired to a chapter bookmark. (§1.8)
+- **Accessibility** roles/labels/hit targets on all primary navigation, the reader header/bottom bar, and audio controls. (§4 — partial; see below)
+- **Hygiene:** removed misleading iOS mic permission; aligned sync URL; themed red-letter color; darkened verse-number gold to pass WCAG AA. (§2.6, §5)
+- **Test infra + scoped tsconfig** so `tsc`/tests are meaningful.
+
+### ⏳ Remaining (follow-up)
+- **Server-backed auth/sync.** Implemented as genuine offline-local auth; wiring the Railway **Postgres** backend (client↔route contract in §1.3, JWT) needs a running backend to verify — out of scope for this environment.
+- **Dead SQLite layer (§1.4).** Left in place: `syncService` still references `getDatabase`, so removal requires the sync refactor above.
+- **Accessibility (§4):** study modals (word detail, Strong's, highlight, note) close buttons + `accessibilityViewIsModal`; Dynamic Type.
+- **UX polish:** verse-scroll for `?verse=` deep links (§3.M2); replace remaining tap-to-cycle settings with modal pickers (§3.H1/H3); nav `push`/`replace` model (§3.M1); swipe-to-dismiss sheets (§3.M3); single palette source of truth (§2.8).
