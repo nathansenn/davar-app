@@ -1,0 +1,44 @@
+# GRAPH_INDEX — Davar architecture pack routing index
+# Machine-readable map from concepts/tasks to owning docs and code.
+
+sources:
+  design_review: docs/DESIGN_REVIEW.md            # critical audit + remediation status
+  mission: docs/project-architect/davar/MISSION.md
+  source_of_truth: docs/project-architect/davar/SOURCE-OF-TRUTH.md
+  store_prep:
+    - docs/app-store-description.md
+    - docs/play-store-description.md
+    - docs/screenshots-needed.md
+    - docs/deployment.md
+
+divisions:
+  research: [00-brief.md, 01-product-scope.md]
+  architecture: [02-architecture.md, 03-data-and-apis.md, 04-ui-ux.md]
+  build: [05-build-plan.md, 06-agent-packets.md, 10-page-by-page.md, 11-checklists.md]
+  verification: [08-verification-plan.md, 12-screen-acceptance-matrix.md, 13-code-and-test-map.md]
+  operations: [SOURCE-OF-TRUTH.md, 07-risk-register.md]
+  memory: [09-correction-preflight.md]
+
+task_patterns:
+  "add or change a screen": [04-ui-ux.md, 10-page-by-page.md, 12-screen-acceptance-matrix.md]
+  "add or change a service/data": [03-data-and-apis.md, 13-code-and-test-map.md]
+  "wire server auth or sync": [03-data-and-apis.md, 06-agent-packets.md (T-201..T-203), 07-risk-register.md]
+  "ship to store": [11-checklists.md, 05-build-plan.md, SOURCE-OF-TRUTH.md]
+  "fix a bug / regression": [09-correction-preflight.md, 13-code-and-test-map.md]
+
+chains:
+  ship_mvp: [05-build-plan.md, 11-checklists.md, 08-verification-plan.md]
+  server_integration: [03-data-and-apis.md, 06-agent-packets.md, 08-verification-plan.md, 07-risk-register.md]
+  ui_packet: [10-page-by-page.md, 12-screen-acceptance-matrix.md, 13-code-and-test-map.md]
+
+concept_map:
+  theme / dark mode: { doc: 02-architecture.md, code: src/lib/theme.ts }
+  auth: { doc: 03-data-and-apis.md, code: src/services/authService.ts + src/services/authClient.ts + src/stores/authStore.ts }
+  reading plans: { doc: 03-data-and-apis.md, code: src/services/planCatalog.ts + src/stores/readingStore.ts }
+  bible text: { doc: 03-data-and-apis.md, code: src/services/bibleService.ts + assets/bibles }
+  word study / strongs: { doc: 03-data-and-apis.md, code: src/services/{lexiconService,strongsService,strongsSearchService}.ts }
+  audio: { doc: 03-data-and-apis.md, code: src/services/audioService.ts + src/components/reading/AudioControls.tsx }
+  notifications: { doc: 03-data-and-apis.md, code: src/services/notificationService.ts }
+  sync: { doc: 03-data-and-apis.md, code: src/services/syncService.ts (NOT wired), backend/ }
+  highlights/notes/bookmarks: { doc: 03-data-and-apis.md, code: src/stores/userDataStore.ts }
+  reader screen: { doc: 10-page-by-page.md, code: app/read/[passage].tsx }
