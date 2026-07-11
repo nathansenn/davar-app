@@ -14,7 +14,8 @@ import { syncService } from '../../src/services/syncService';
 import { scheduleDailyReminder, cancelDailyReminder } from '../../src/services/notificationService';
 import { formatTimeLabel, nextPreset } from '../../src/utils/reminderTime';
 import { useTheme } from '../../src/lib/theme';
-import type { Translation } from '../../src/types/ui';
+import { OptionPicker } from '../../src/components/common/OptionPicker';
+import { TRANSLATIONS, type Translation } from '../../src/types/ui';
 
 type SettingSection = {
   title: string;
@@ -60,6 +61,7 @@ export default function SettingsScreen() {
   const { streak, longestStreak, totalDaysRead, reset: resetReading } = useReadingStore();
 
   const [syncStatus, setSyncStatus] = useState(syncService.getStatus());
+  const [activePicker, setActivePicker] = useState<'font' | 'translation' | 'theme' | null>(null);
 
   useEffect(() => {
     syncService.init();
@@ -128,9 +130,6 @@ export default function SettingsScreen() {
     );
   };
 
-  const cycle = <T,>(options: T[], current: T): T =>
-    options[(options.indexOf(current) + 1) % options.length];
-
   const handleNotificationsToggle = useCallback(
     async (value: boolean) => {
       if (value) {
@@ -163,6 +162,21 @@ export default function SettingsScreen() {
   ];
   const themeLabel = { light: 'Light', dark: 'Dark', system: 'System' }[themeMode];
 
+  const fontPickerOptions = FONT_SIZE_OPTIONS.map((s) => ({
+    value: s,
+    label: { small: 'Small', medium: 'Medium', large: 'Large', xlarge: 'Extra Large' }[s],
+  }));
+  const translationPickerOptions = TRANSLATION_OPTIONS.map((t) => ({
+    value: t,
+    label: t,
+    sublabel: TRANSLATIONS[t]?.fullName,
+  }));
+  const themePickerOptions = [
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+    { value: 'system', label: 'System', sublabel: 'Match device' },
+  ];
+
   const sections: SettingSection[] = [
     {
       title: 'Account',
@@ -181,15 +195,15 @@ export default function SettingsScreen() {
           icon: 'text',
           label: 'Font Size',
           value: fontSizeLabel,
-          accessibilityHint: 'Cycles to the next font size',
-          onPress: () => setFontSize(cycle(FONT_SIZE_OPTIONS, fontSize)),
+          accessibilityHint: 'Choose a font size',
+          onPress: () => setActivePicker('font'),
         },
         {
           icon: 'book-outline',
           label: 'Default Translation',
           value: defaultTranslation,
           accessibilityHint: 'Choose your default Bible translation',
-          onPress: () => setDefaultTranslation(cycle(TRANSLATION_OPTIONS, defaultTranslation)),
+          onPress: () => setActivePicker('translation'),
         },
         {
           icon: 'list',
@@ -233,8 +247,8 @@ export default function SettingsScreen() {
           icon: isDark ? 'moon' : 'sunny',
           label: 'Theme',
           value: themeLabel,
-          accessibilityHint: 'Cycles between light, dark and system themes',
-          onPress: () => setTheme(cycle(THEME_OPTIONS, themeMode)),
+          accessibilityHint: 'Choose light, dark or system theme',
+          onPress: () => setActivePicker('theme'),
         },
       ],
     },
@@ -295,6 +309,7 @@ export default function SettingsScreen() {
   ];
 
   return (
+    <>
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       showsVerticalScrollIndicator={false}
@@ -426,5 +441,31 @@ export default function SettingsScreen() {
         </Text>
       </View>
     </ScrollView>
+
+    <OptionPicker
+      visible={activePicker === 'font'}
+      title="Font Size"
+      options={fontPickerOptions}
+      selected={fontSize}
+      onSelect={(v) => setFontSize(v as typeof fontSize)}
+      onClose={() => setActivePicker(null)}
+    />
+    <OptionPicker
+      visible={activePicker === 'translation'}
+      title="Default Translation"
+      options={translationPickerOptions}
+      selected={defaultTranslation}
+      onSelect={(v) => setDefaultTranslation(v as Translation)}
+      onClose={() => setActivePicker(null)}
+    />
+    <OptionPicker
+      visible={activePicker === 'theme'}
+      title="Theme"
+      options={themePickerOptions}
+      selected={themeMode}
+      onSelect={(v) => setTheme(v as typeof themeMode)}
+      onClose={() => setActivePicker(null)}
+    />
+    </>
   );
 }
