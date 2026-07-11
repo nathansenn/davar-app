@@ -113,6 +113,8 @@ export function NoteEditor({
               keyboardVisible && styles.containerKeyboard,
             ]}
             onStartShouldSetResponder={() => true}
+            accessibilityViewIsModal
+            accessibilityLabel={`${isEditing ? 'Edit' : 'Add'} note${verse ? ` for ${verse}` : ''}`}
           >
             {/* Handle bar */}
             <View style={styles.handleBar}>
@@ -123,7 +125,12 @@ export function NoteEditor({
 
             {/* Header */}
             <View style={styles.header}>
-              <TouchableOpacity onPress={handleClose} style={styles.headerButton}>
+              <TouchableOpacity
+                onPress={handleClose}
+                style={styles.headerButton}
+                accessibilityRole="button"
+                accessibilityLabel="Cancel and close note editor"
+              >
                 <Text style={[styles.cancelText, { color: theme.textSecondary }]}>
                   Cancel
                 </Text>
@@ -144,6 +151,9 @@ export function NoteEditor({
                 onPress={handleSave}
                 style={styles.headerButton}
                 disabled={!canSave}
+                accessibilityRole="button"
+                accessibilityLabel="Save note"
+                accessibilityState={{ disabled: !canSave }}
               >
                 <Text
                   style={[
@@ -187,6 +197,7 @@ export function NoteEditor({
                 ]}
                 placeholder="Write your note..."
                 placeholderTextColor={theme.textMuted}
+                accessibilityLabel="Note text"
                 value={content}
                 onChangeText={setContent}
                 multiline
@@ -205,6 +216,8 @@ export function NoteEditor({
               {isEditing && onDelete && (
                 <TouchableOpacity
                   onPress={handleDelete}
+                  accessibilityRole="button"
+                  accessibilityLabel="Delete note"
                   style={[
                     styles.deleteButton,
                     { backgroundColor: '#DC262620' },

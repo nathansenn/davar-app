@@ -3,7 +3,7 @@
  * Full chapter display with multiple display modes, gestures, and verse interactions
  */
 
-import React, { useRef, useCallback, useMemo, useState } from 'react';
+import React, { useRef, useCallback, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -63,6 +63,7 @@ interface ChapterViewProps {
   onNextChapter?: () => void;
   onRefresh?: () => Promise<void>;
   isRefreshing?: boolean;
+  scrollToVerse?: number; // deep-link target: scroll to + emphasize this verse
   style?: ViewStyle;
 }
 
@@ -79,11 +80,41 @@ export function ChapterView({
   onNextChapter,
   onRefresh,
   isRefreshing = false,
+  scrollToVerse,
   style,
 }: ChapterViewProps) {
   const { theme } = useTheme();
   const scrollRef = useRef<ScrollView>(null);
+  const versePositions = useRef<Record<number, number>>({});
+  const didScrollRef = useRef(false);
   const translateX = useSharedValue(0);
+
+  // Reset the one-shot scroll when the target or chapter changes.
+  useEffect(() => {
+    didScrollRef.current = false;
+    // If the target verse's position is already known (chapter unchanged),
+    // scroll immediately; otherwise onLayout below handles it on first render.
+    if (scrollToVerse && versePositions.current[scrollToVerse] != null) {
+      didScrollRef.current = true;
+      const y = versePositions.current[scrollToVerse];
+      requestAnimationFrame(() =>
+        scrollRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true })
+      );
+    }
+  }, [scrollToVerse, chapter.chapter]);
+
+  const handleVerseLayout = useCallback(
+    (verseNum: number, y: number) => {
+      versePositions.current[verseNum] = y;
+      if (verseNum === scrollToVerse && !didScrollRef.current) {
+        didScrollRef.current = true;
+        requestAnimationFrame(() =>
+          scrollRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true })
+        );
+      }
+    },
+    [scrollToVerse]
+  );
 
   // Get settings
   const {
@@ -152,19 +183,22 @@ export function ChapterView({
       const verseNum = verse.verse || verse.number;
       const ref = `${bookId} ${chapter.chapter}:${verseNum}`;
       const annotation = annotations.get(ref);
-      
+
       const isHighlighted = !!annotation?.highlight;
       const highlightColor = annotation?.highlight?.color as HighlightColor | undefined;
       const hasNote = !!annotation?.note;
       const hasBookmark = !!annotation?.bookmark;
-      
+
       // Poetry formatting (for poetry books)
       const isPoetry = poetryFormatting && isPoetryBook;
-      
+
       // Paragraph starts (for paragraph mode)
       const isParagraphStart = paragraphBreaks.includes(verseNum) || verseNum === 1;
 
+      const isTarget = scrollToVerse === verseNum;
+
       // Interlinear mode
+      let verseEl: React.ReactNode;
       if (displayMode === 'interlinear' && showOriginalLanguage) {
         const originalVerse = originalChapter?.verses.find(
           v => (v.verse || v.number) === verseNum
@@ -173,9 +207,8 @@ export function ChapterView({
           ? 'hebrew' as const
           : 'greek' as const;
 
-        return (
+        verseEl = (
           <InterlinearVerse
-            key={`${chapter.chapter}:${verseNum}`}
             verseNumber={verseNum}
             englishText={verse.text}
             originalText={originalVerse?.text}
@@ -190,42 +223,57 @@ export function ChapterView({
             style={styles.verse}
           />
         );
+      } else {
+        // Standard verse display
+        verseEl = (
+          <VerseText
+            verse={verse}
+            bookId={bookId}
+            chapter={chapter.chapter}
+            fontSize={fontSize}
+            lineHeight={lineHeight}
+            isHighlighted={isHighlighted}
+            highlightColor={highlightColor}
+            hasNote={hasNote}
+            hasBookmark={hasBookmark}
+            showVerseNumber={showVerseNumbers}
+            isPoetry={isPoetry}
+            isParagraphStart={isParagraphStart}
+            displayMode={displayMode}
+            onWordPress={
+              onWordPress
+                ? (word, position) => onWordPress(verse, word, position)
+                : undefined
+            }
+            onLongPress={
+              onVerseLongPress
+                ? () => onVerseLongPress(verse)
+                : undefined
+            }
+            onVersePress={
+              onVersePress
+                ? () => onVersePress(verse)
+                : undefined
+            }
+            style={styles.verse}
+          />
+        );
       }
 
-      // Standard verse display
+      // Wrap so we can measure each verse's offset (for ?verse deep links) and
+      // briefly emphasize the linked verse.
       return (
-        <VerseText
+        <View
           key={`${chapter.chapter}:${verseNum}`}
-          verse={verse}
-          bookId={bookId}
-          chapter={chapter.chapter}
-          fontSize={fontSize}
-          lineHeight={lineHeight}
-          isHighlighted={isHighlighted}
-          highlightColor={highlightColor}
-          hasNote={hasNote}
-          hasBookmark={hasBookmark}
-          showVerseNumber={showVerseNumbers}
-          isPoetry={isPoetry}
-          isParagraphStart={isParagraphStart}
-          displayMode={displayMode}
-          onWordPress={
-            onWordPress
-              ? (word, position) => onWordPress(verse, word, position)
+          onLayout={(e) => handleVerseLayout(verseNum, e.nativeEvent.layout.y)}
+          style={
+            isTarget
+              ? { backgroundColor: theme.secondary + '22', borderRadius: 8, marginHorizontal: -4, paddingHorizontal: 4 }
               : undefined
           }
-          onLongPress={
-            onVerseLongPress
-              ? () => onVerseLongPress(verse)
-              : undefined
-          }
-          onVersePress={
-            onVersePress
-              ? () => onVersePress(verse)
-              : undefined
-          }
-          style={styles.verse}
-        />
+        >
+          {verseEl}
+        </View>
       );
     });
   }, [
@@ -247,6 +295,9 @@ export function ChapterView({
     onWordPress,
     onVerseLongPress,
     onVersePress,
+    scrollToVerse,
+    handleVerseLayout,
+    theme.secondary,
   ]);
 
   return (
