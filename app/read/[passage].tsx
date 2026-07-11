@@ -116,7 +116,18 @@ function parsePassageSlug(slug: string): ParsedPassage | null {
 }
 
 export default function PassageScreen() {
-  const { passage, planDay } = useLocalSearchParams<{ passage: string; planDay?: string }>();
+  const { passage, planDay, verse } = useLocalSearchParams<{
+    passage: string;
+    planDay?: string;
+    verse?: string;
+  }>();
+
+  // Deep-link target verse (e.g. ?verse=16 or ?verse=16-18 → scroll to 16)
+  const targetVerse = useMemo(() => {
+    if (!verse) return undefined;
+    const n = parseInt(String(verse).split('-')[0], 10);
+    return Number.isNaN(n) ? undefined : n;
+  }, [verse]);
   const router = useRouter();
   const { theme, isDark } = useTheme();
   
@@ -554,6 +565,7 @@ export default function PassageScreen() {
           onVerseLongPress={handleVerseLongPress}
           onPreviousChapter={handlePreviousChapter}
           onNextChapter={handleNextChapter}
+          scrollToVerse={targetVerse}
         />
         
         {/* Bottom Bar */}
