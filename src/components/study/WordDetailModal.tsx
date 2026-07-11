@@ -539,6 +539,8 @@ export function WordDetailModal({
         <View
           style={[styles.container, { backgroundColor: theme.surface }]}
           onStartShouldSetResponder={() => true}
+          accessibilityViewIsModal
+          accessibilityLabel={word ? `Word study: ${word}` : 'Word study'}
         >
           {/* Handle bar */}
           <View style={styles.handleBar}>
@@ -733,6 +735,8 @@ export function WordDetailModal({
           {/* Close Button */}
           <TouchableOpacity
             onPress={handleClose}
+            accessibilityRole="button"
+            accessibilityLabel="Close word study"
             style={[styles.closeButton, { backgroundColor: theme.primary }]}
           >
             <Text style={[styles.closeButtonText, { color: theme.primaryText }]}>

@@ -119,6 +119,8 @@ export function StrongsSearchModal({
         <View
           style={[styles.container, { backgroundColor: theme.surface }]}
           onStartShouldSetResponder={() => true}
+          accessibilityViewIsModal
+          accessibilityLabel={`Find ${strongsNumber} in the Bible`}
         >
           {/* Handle bar */}
           <View style={styles.handleBar}>
@@ -183,6 +185,8 @@ export function StrongsSearchModal({
           {/* Close Button */}
           <TouchableOpacity
             onPress={handleClose}
+            accessibilityRole="button"
+            accessibilityLabel="Close search"
             style={[styles.closeButton, { backgroundColor: theme.primary }]}
           >
             <Text style={[styles.closeButtonText, { color: theme.primaryText }]}>

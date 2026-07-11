@@ -90,6 +90,8 @@ export function HighlightMenu({
         <View
           style={[styles.container, { backgroundColor: theme.surface }]}
           onStartShouldSetResponder={() => true}
+          accessibilityViewIsModal
+          accessibilityLabel={verse ? `Verse actions for ${verse}` : 'Verse actions'}
         >
           {/* Handle bar */}
           <View style={styles.handleBar}>
@@ -116,6 +118,9 @@ export function HighlightMenu({
               {colors.map(([colorKey, colorValue]) => (
                 <TouchableOpacity
                   key={colorKey}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${colorValue.label} highlight`}
+                  accessibilityState={{ selected: currentColor === colorKey }}
                   style={[
                     styles.colorButton,
                     {
@@ -135,6 +140,8 @@ export function HighlightMenu({
               {/* Remove highlight button */}
               {currentColor && (
                 <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Remove highlight"
                   style={[
                     styles.colorButton,
                     styles.removeButton,
@@ -152,6 +159,9 @@ export function HighlightMenu({
           <View style={styles.actions}>
             {/* Bookmark */}
             <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+              accessibilityState={{ selected: isBookmarked }}
               style={[
                 styles.actionButton,
                 {
@@ -162,7 +172,7 @@ export function HighlightMenu({
               ]}
               onPress={handleToggleBookmark}
             >
-              <Text style={styles.actionIcon}>
+              <Text style={styles.actionIcon} accessibilityElementsHidden importantForAccessibility="no">
                 {isBookmarked ? '🔖' : '📑'}
               </Text>
               <Text style={[styles.actionLabel, { color: theme.text }]}>
@@ -172,6 +182,8 @@ export function HighlightMenu({
 
             {/* Note */}
             <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={hasNote ? 'Edit note' : 'Add note'}
               style={[
                 styles.actionButton,
                 {
@@ -182,7 +194,7 @@ export function HighlightMenu({
               ]}
               onPress={handleAddNote}
             >
-              <Text style={styles.actionIcon}>📝</Text>
+              <Text style={styles.actionIcon} accessibilityElementsHidden importantForAccessibility="no">📝</Text>
               <Text style={[styles.actionLabel, { color: theme.text }]}>
                 {hasNote ? 'Edit Note' : 'Add Note'}
               </Text>
@@ -192,6 +204,8 @@ export function HighlightMenu({
           {/* Cancel Button */}
           <TouchableOpacity
             onPress={handleClose}
+            accessibilityRole="button"
+            accessibilityLabel="Close verse actions"
             style={[styles.cancelButton, { borderColor: theme.border }]}
           >
             <Text style={[styles.cancelText, { color: theme.textSecondary }]}>
