@@ -16,7 +16,7 @@ import {
   TextInput,
   Dimensions,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

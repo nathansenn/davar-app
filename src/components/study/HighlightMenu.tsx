@@ -12,7 +12,7 @@ import {
   Pressable,
   StyleSheet,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { useTheme, getHighlightColor } from '../../lib/theme';
 import { HIGHLIGHT_COLORS, type HighlightColor } from '../../types';
 

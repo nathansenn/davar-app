@@ -16,7 +16,7 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { useTheme } from '../../lib/theme';
 
 interface NoteEditorProps {
