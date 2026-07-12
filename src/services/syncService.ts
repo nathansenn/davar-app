@@ -4,7 +4,7 @@
  * Uses expo-sqlite for local queue and syncs to backend when online
  */
 
-import * as SQLite from 'expo-sqlite';
+import type { SQLiteDatabase } from 'expo-sqlite';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { useUserDataStore } from '../stores/userDataStore';
 import type { Highlight, Note, Bookmark } from '../types/ui';
@@ -36,7 +36,14 @@ const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || 'https://davar-backend-production.up.railway.app';
 
 // Singleton database instance
-let db: SQLite.SQLiteDatabase | null = null;
+let db: SQLiteDatabase | null = null;
+
+// Lazily require expo-sqlite so merely importing this module never touches the
+// native module — it throws at load time on platforms without it (e.g. web).
+// Only calling into the sync queue loads it, and that path is guarded.
+function loadSQLite(): typeof import('expo-sqlite') {
+  return require('expo-sqlite');
+}
 
 // Sync state
 let syncStatus: SyncStatus = {
@@ -53,10 +60,10 @@ const statusListeners: Set<(status: SyncStatus) => void> = new Set();
 /**
  * Initialize the sync database
  */
-async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
+async function initDatabase(): Promise<SQLiteDatabase> {
   if (db) return db;
-  
-  db = await SQLite.openDatabaseAsync('davar_sync.db');
+
+  db = await loadSQLite().openDatabaseAsync('davar_sync.db');
   
   // Create sync queue table
   await db.execAsync(`
