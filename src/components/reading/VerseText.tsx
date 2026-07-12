@@ -11,7 +11,7 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { useTheme, getHighlightColor } from '../../lib/theme';
 import type { HighlightColor } from '../../types';
 

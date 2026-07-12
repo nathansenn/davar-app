@@ -17,7 +17,7 @@ import Animated, {
   withSpring,
   useSharedValue,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { useTheme } from '../../lib/theme';
 import type { FontSize } from '../../types';
 import { FONT_SIZES } from '../../types';

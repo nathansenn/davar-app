@@ -14,7 +14,7 @@ import {
   Pressable,
   StyleSheet,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { useTheme } from '../../lib/theme';
 import { strongsSearchService, type StrongsSearchResult } from '../../services/strongsSearchService';
 import { strongsService } from '../../services/strongsService';

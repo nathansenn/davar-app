@@ -12,7 +12,7 @@ import {
   StyleSheet,
   Pressable,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../../utils/haptics';
 import { useTheme } from '../../lib/theme';
 import type { Translation, TranslationDetails } from '../../types';
 import { TRANSLATIONS } from '../../types';

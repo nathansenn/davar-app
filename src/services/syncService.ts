@@ -368,15 +368,26 @@ export const syncService = {
    * Initialize sync service
    */
   async init(): Promise<void> {
-    await initDatabase();
-    syncStatus.lastSyncAt = await getLastSyncTime();
-    await updatePendingCount();
-    
-    // Set up network state listener
-    NetInfo.addEventListener((state: NetInfoState) => {
-      syncStatus.isOnline = state.isConnected ?? false;
-      notifyListeners();
-    });
+    // Never let sync init crash a screen. If the local SQLite queue is
+    // unavailable on this platform (e.g. web has no ExpoSQLite native module),
+    // degrade gracefully — sync is optional and inactive by default.
+    try {
+      await initDatabase();
+      syncStatus.lastSyncAt = await getLastSyncTime();
+      await updatePendingCount();
+    } catch (error) {
+      console.warn('[sync] local queue unavailable; sync disabled:', error);
+    }
+
+    // Set up network state listener (also isolated from init failures).
+    try {
+      NetInfo.addEventListener((state: NetInfoState) => {
+        syncStatus.isOnline = state.isConnected ?? false;
+        notifyListeners();
+      });
+    } catch (error) {
+      console.warn('[sync] network listener unavailable:', error);
+    }
   },
   
   /**
