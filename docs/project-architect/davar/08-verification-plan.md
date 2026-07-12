@@ -8,10 +8,11 @@
 - **Add (P1):** bibleService `search`/`getChapter`; store integration with mocked AsyncStorage; sync contract (mocked fetch).
 
 ## Browser walkthrough (runtime smoke) `[current]`
-- Serve `dist/` (from `expo export -p web`) and drive with headless Chromium (`playwright-core`, browser at `/opt/pw-browsers`):
-  - **Boot:** login screen renders; 0 fatal `pageerror`.
-  - **Flow:** Create one → fill register → Home renders (greeting/streak/VOTD) → Browse Plans renders; 0 fatal errors.
-- Harness pattern: static server + `chromium.launch({executablePath})` + assert body text + collect `pageerror`. (In-session harness lived in the scratchpad; re-create per run — not committed.)
+- Serve `dist/` (from `expo export -p web`) and drive with headless Chromium (`playwright-core`, browser at `/opt/pw-browsers`).
+- **Full 27-screen walkthrough performed** (in-app tab nav + a few deep links; storage-seeded active plan): login, register (+ filled), Home (no-plan + active-plan), Read/Browse, book search, reference jump, full-text verse search, chapter picker, reader (Genesis 1 + verse deep-link), interlinear, audio controls, word-study, highlight menu, note editor, plans (active), settings, font/translation/theme pickers, and **full dark mode** (settings/home/read/plans/reader). Result: **0 fatal errors**, a screenshot captured per screen.
+- This walkthrough caught two real native-module fragilities (since fixed, PR #6): `expo-sqlite` import crashing Settings on web, and `expo-haptics` throwing on tap — both now crash-proof.
+- Harness pattern: static server + `chromium.launch({executablePath})` + `setDefaultTimeout` + assert body text/`aria-label` + collect `pageerror`; write per-screen screenshots + a report. (Harness lives in the scratchpad; re-create per run — not committed.)
+- **Caveat:** web-only. Push notifications firing, haptic feedback, and actual TTS audio are native-only and require an on-device Expo Go pass to verify end-to-end.
 
 ## Desktop / mobile coverage
 - Primary: **Expo Go on a physical iOS + Android device.** Manual pass of the 4 walkthrough scenarios in `04-ui-ux.md`.

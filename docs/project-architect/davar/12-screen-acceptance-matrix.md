@@ -4,6 +4,8 @@ Status values: `verified` (evidence attached), `connected` (wired + navigable), 
 
 Cross-reference code/tests in `13-code-and-test-map.md`.
 
+**Runtime status (current):** all primary screens + study modals + pickers + full dark mode were exercised in a 27-screen headless-browser walkthrough with **0 fatal errors** — so `connected` rows below are runtime-confirmed on web. Native-only paths (notifications firing, haptics, TTS audio) still need an on-device Expo Go pass.
+
 | ID | Screen | Spec (10-page) | Code file | Navigation | Data/API | Required states | Tests / evidence | Status | Issues / required updates | Priority |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | S-01 | Auth gate | §S-01 | `app/_layout.tsx` | root | `authStore.initialize` | loading | web smoke boot (0 fatal) | connected | — | P0 |

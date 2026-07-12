@@ -17,9 +17,9 @@
   5. Cross-device sync works against the backend. `[proposed — not met]`
 - **Priority focus:** Convert the offline MVP into a store-submittable build; then wire server-backed accounts/sync.
 - **Phases:**
-  - P0 — Correctness/ship-blockers (dark mode, plans flow, real auth, notifications, contrast). **Done.**
-  - P1 — Polish (full a11y, verse-scroll deep links, modal pickers, iconography). **In progress.**
+  - P0 — Correctness/ship-blockers (dark mode, plans flow, real auth, notifications, contrast). **Done** (PRs #2, #3).
+  - P1 — Polish. **Mostly done:** study-modal a11y (T-101), verse-scroll deep links (T-102), modal pickers (T-103), and crash-proof native-module usage (lazy expo-sqlite, safe haptics) merged (PRs #5, #6). **Remaining:** T-104 iconography (emoji→Ionicons), T-105 reader nav model + persisted "Mark Complete", swipe-to-dismiss sheets.
   - P2 — Server integration (auth + sync against Railway backend), SQLite reconciliation. **Not started.**
   - P3 — Store submission (EAS production build, screenshots, review). **Not started.**
-- **Current context checkpoint:** All P0 + significant P1 merged to `master` (PRs #2, #3). 6 test suites / 47 unit tests. Backend exists but is not contacted by the app.
-- **Next activation command:** `npx expo start` (Expo Go dev) — or continue P1/P2 packets in `06-agent-packets.md`.
+- **Current context checkpoint:** P0 + most of P1 merged to `master` (PRs #2–#6). 6 test suites / 47 unit tests, `tsc` clean. Whole app verified end-to-end via a 27-screen headless-browser walkthrough (0 fatal errors, light + dark). Backend exists but is not contacted by the app.
+- **Next activation command:** `npx expo start` (Expo Go dev) — or continue P1/P2 packets in `06-agent-packets.md` (T-104/T-105 next).

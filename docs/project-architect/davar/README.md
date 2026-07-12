@@ -14,8 +14,8 @@ Build-ready architecture and implementation docs for the Davar Bible study app, 
 
 ## Snapshot (`current`)
 - **Stack:** Expo SDK 52, React Native 0.76, expo-router v4, zustand, TypeScript. Offline-first; runs in Expo Go (no custom native).
-- **Status:** P0 correctness hardening merged (dark mode, plans→progress, real local auth, notifications, contrast). 6 test suites / 47 unit tests green; web bundle + runtime smoke clean.
-- **Next:** P1 polish (a11y, verse-scroll, modal pickers) → P2 server sync → P3 store submit.
+- **Status:** P0 + most of P1 merged (dark mode, plans→progress, real local auth, notifications, contrast, study-modal a11y, verse-scroll, modal pickers, crash-proof native modules). 6 test suites / 47 unit tests green; verified end-to-end via a 27-screen headless-browser walkthrough (0 fatal errors, light + dark).
+- **Next:** P1 finish (T-104 iconography, T-105 nav/persist) → P2 server sync → P3 store submit.
 - **Backend:** `backend/` (Express+Prisma+Postgres) exists but is **not integrated**.
 
 Companion: `docs/DESIGN_REVIEW.md` (the critical audit this pack builds on).
