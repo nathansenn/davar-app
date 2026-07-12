@@ -12,6 +12,8 @@ Guardrails distilled from the design review + hardening work. Read before editin
 7. **Single persistence spine.** Client state persists via zustand+AsyncStorage (+SecureStore for auth). Don't write to the dormant SQLite layer; sync must adapt to the stores (T-203).
 8. **Honest sync.** Do not report success without transferring data; keep sync gated until the contract is reconciled (T-201).
 
+9. **Native modules must never crash the UI.** Use `src/utils/haptics.ts` (not `expo-haptics` directly); keep `expo-sqlite` lazy + guarded; access any absentable native capability defensively so a missing module degrades gracefully instead of blanking a screen. (Root cause of the Settings crash found in the walkthrough.)
+
 ## Provenance checks
 - Every architectural claim in this pack is labeled `current`/`proposed`/`unknown`. Don't upgrade `proposed`→`current` without code/evidence.
 - Backend is **present but not integrated** — never describe sync/cloud auth as working.

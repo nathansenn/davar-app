@@ -2,24 +2,36 @@
 
 Each packet is scoped by ownership boundary. Every packet: run `npm run typecheck && npm test` before handoff; add/adjust tests; keep integration judgment with the main agent.
 
+**Status:** ✅ **T-101, T-102, T-103 done** (merged PR #5). Plus a native-module crash-proofing packet — lazy `expo-sqlite` + safe `haptics` wrapper — done (PR #6). **Next:** T-104, T-105, then T-201–203 (P2). Remaining packets below are unstarted.
+
 ---
 
-### T-101 — Study-modal accessibility
+### T-101 — Study-modal accessibility ✅ done (PR #5)
 - **Owner type:** RN UI. **Write scope:** `src/components/study/{WordDetailModal,StrongsSearchModal,HighlightMenu,NoteEditor}.tsx`. **Off-limits:** stores, services.
 - **Inputs:** `10-page-by-page.md` §M-01..M-04; `docs/DESIGN_REVIEW.md` §4.
 - **Do:** add `accessibilityRole="button"` + `accessibilityLabel` to every icon/emoji-only control (close, color swatches, actions); add `accessibilityViewIsModal` to sheet content.
 - **Acceptance:** every tappable control has a label; VoiceOver/TalkBack reaches close. **Evidence:** manual screen-reader pass notes. **Depends:** none.
 
-### T-102 — Verse-scroll deep links
+### T-102 — Verse-scroll deep links ✅ done (PR #5)
 - **Owner type:** RN UI. **Write scope:** `app/read/[passage].tsx`, `src/components/reading/ChapterView.tsx`. **Off-limits:** services.
 - **Inputs:** `referenceParser.referenceToPath` already emits `?verse=`; `10-page-by-page.md` §S-09.
 - **Do:** read `?verse` param; pass target to `ChapterView`; scroll to + briefly emphasize the verse via a `ScrollView` ref + `onLayout` measurement.
 - **Acceptance:** opening `/read/john-3?verse=16` scrolls John 3:16 into view. **Evidence:** runtime harness scroll assertion. **Depends:** none.
 
-### T-103 — Modal option pickers
+### T-103 — Modal option pickers ✅ done (PR #5) — `src/components/common/OptionPicker.tsx`
 - **Owner type:** RN UI. **Write scope:** new `src/components/common/OptionPicker.tsx`; edit `app/(tabs)/settings.tsx` + reader translation control. **Off-limits:** stores' shapes.
 - **Do:** reusable bottom-sheet single-select; replace tap-to-cycle for translation/theme/font with it.
 - **Acceptance:** options visible, selectable, reversible; Android shows all options (no 3-button Alert). **Depends:** none.
+
+### T-104 — Consistent iconography (emoji → Ionicons)
+- **Owner type:** RN UI. **Write scope:** `src/components/study/*`, `src/components/home/*` and any screen using emoji as controls. **Off-limits:** stores/services.
+- **Do:** replace tappable/control emoji (📝🔖📑🗑️→ etc.) with tintable Ionicons matching the theme; keep purely decorative emoji marked `importantForAccessibility="no"` (already done in study modals).
+- **Acceptance:** no emoji used as an interactive control; icons theme-tinted + labeled; 0 console errors in the walkthrough. **Evidence:** before/after screenshots. **Depends:** none.
+
+### T-105 — Reader nav model + persisted "Mark Complete"
+- **Owner type:** RN UI/state. **Write scope:** `app/read/[passage].tsx`, `src/stores/readingStore.ts`. **Off-limits:** bibleService.
+- **Do:** decide + apply a consistent chapter-nav model (currently `replace`; cross-refs `push`) so Back is predictable; persist per-passage completion so the "Complete" checkmark survives navigation (e.g. a `completedPassages` set keyed by `bookId c:ch`).
+- **Acceptance:** Back behaves consistently; reopening a completed chapter still shows complete. **Evidence:** runtime nav assertions + screenshots. **Depends:** none.
 
 ### T-201 — Reconcile sync contract
 - **Owner type:** integration. **Write scope:** `src/services/syncService.ts` (+ read `backend/src/routes/sync.ts`). **Off-limits:** UI.

@@ -34,16 +34,16 @@
 - `src/services/bibleService.ts` — in-memory reads (exercised indirectly by planCatalog/VOTD + runtime). **Gap:** add unit tests for `search`/`getChapter`.
 - `src/services/authClient.ts` — native adapters (integration-only).
 - `src/services/notificationService.ts` — native scheduling (pure part `reminderTime` is tested).
-- `src/services/{audioService,syncService,lexiconService,strongsService,strongsSearchService}.ts` — **Gap:** untested.
+- `src/services/{audioService,syncService,lexiconService,strongsService,strongsSearchService}.ts` — **Gap:** untested. `syncService` now lazy-loads `expo-sqlite` and its `init()` is crash-proof (degrades if the native module is absent).
+- `src/utils/haptics.ts` — safe haptics wrapper (no-ops on web, swallows errors); trivial, no test. Used app-wide instead of direct `expo-haptics` calls.
+- `src/components/common/OptionPicker.tsx` — reusable modal picker (Settings font/translation/theme); covered by the runtime walkthrough.
 - `src/stores/*` — persist+RN; pure logic extracted to `utils/streak` (tested). **Gap:** store integration test with mocked AsyncStorage.
 - All screens/components — no component tests. **Gap:** covered only by runtime web smoke.
 
 ## Runtime evidence `[current]`
-- `npx expo export -p web` → clean bundle (46.7 MB, expected — bundled Bibles).
-- Headless Chromium (playwright-core) vs served `dist/`:
-  - Boot → login screen renders, 0 fatal JS errors.
-  - Register → Home → Plans navigation, 0 fatal JS errors.
-- Screenshots delivered in-session (login, home, plans).
+- `npx expo export -p web` → clean bundle (~46.7 MB, expected — bundled Bibles).
+- Headless Chromium (playwright-core) vs served `dist/`: **full 27-screen walkthrough, 0 fatal errors** (auth → home → read/search/chapter-picker → reader/interlinear/audio/word-study/highlight/note → plans → settings → 3 pickers → full dark mode). One screenshot per screen.
+- The walkthrough surfaced + drove fixes for two native-module crashes (see below).
 
 ## Known pass/fail
 - Unit: **47/47 pass.** Typecheck: **clean.** No known failing tests.
